@@ -1,0 +1,1 @@
+//belarus-latest.osm.pbf

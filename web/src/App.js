@@ -53,8 +53,8 @@ export default function App() {
     }, [map]);
 
     return (
-        <div className="App">
-            <h1>FairOS OSM</h1>
+        <div className="App container py-5">
+            <h2 className="pb-2 border-bottom">Decentralized map service</h2>
             {userStatus === 'checking' && <div>
                 Checking user...
             </div>}

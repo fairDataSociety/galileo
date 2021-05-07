@@ -36,4 +36,10 @@ export default class FairOS {
         formData.append('password', password);
         return this.api('POST', `${this.apiUrl}pod/open`, formData);
     }
+
+    kvOpen(name) {
+        let formData = new FormData();
+        formData.append('name', name);
+        return this.api('POST', `${this.apiUrl}kv/open`, formData);
+    }
 }

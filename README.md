@@ -21,7 +21,7 @@ OSM Example
 8) Sign in with your credentials on web project
 
 
-### Utility
+### Other
 
 https://download.geofabrik.de/europe/belarus.html
 

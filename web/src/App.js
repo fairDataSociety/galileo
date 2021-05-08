@@ -2,8 +2,13 @@ import {MapContainer} from 'react-leaflet';
 import './App.css';
 import {useEffect, useMemo, useState} from "react";
 import FairOS from "./service/FairOS";
+import img1 from './themes/reveal/img/intro-carousel/space.jpg';
 
 export default function App() {
+    const PAGE_MAIN = 'main';
+    const PAGE_ABOUT = 'about';
+    const PAGE_MAP = 'map';
+
     const STATUS_CHECKING = 'checking';
     const STATUS_NOT_AUTH = 'not_auth';
     const STATUS_AUTH_SUCCESS = 'auth_success';
@@ -11,6 +16,7 @@ export default function App() {
 
     const api = useMemo(() => new FairOS(), []);
     const [map, setMap] = useState(null);
+    const [page, setPage] = useState(PAGE_MAIN);
     const [userStatus, setUserStatus] = useState(STATUS_CHECKING);
     const [userStatusText, setUserStatusText] = useState('');
     const [user, setUser] = useState({
@@ -25,6 +31,56 @@ export default function App() {
     const [formPod, setFormPod] = useState('');
     const [formKv, setFormKv] = useState('');
 
+    async function fullLogin(username, password, pod, kv) {
+        setUserStatusText('');
+        setUserStatus(STATUS_CHECKING);
+        let errorItem = null;
+        try {
+            const loginData = await api.login(username, password);
+            const podData = await api.podOpen(pod, password);
+            const kvData = await api.kvOpen(kv);
+
+            errorItem = [
+                {item: loginData, text: 'Incorrect login or password'},
+                {item: podData, text: 'Can\'t open pod'},
+                {item: kvData, text: 'Can\'t open kv'}
+            ].find(data => data.item.code !== 200);
+
+            if (errorItem) {
+                setUserStatus(STATUS_NOT_AUTH);
+                setUserStatusText(errorItem.text);
+            } else {
+                window._fair_kv = kv;
+                window._fair_pod = pod;
+                setUser({username, password, pod, kv});
+                setUserStatus(STATUS_AUTH_SUCCESS);
+            }
+        } catch (e) {
+            setUserStatus(STATUS_ERROR);
+            setUserStatusText(`${e.message}. Please, check your connection and services availability.`);
+        }
+
+        return !errorItem;
+    }
+
+    function isSubmitFormEnabled() {
+        return formUsername && formPassword && formPod && formKv;
+    }
+
+    function resetCredentials() {
+        localStorage.setItem('osm_username', '');
+        localStorage.setItem('osm_password', '');
+        localStorage.setItem('osm_pod', '');
+        localStorage.setItem('osm_kv', '');
+    }
+
+    function resetForm() {
+        setFormUsername('');
+        setFormPassword('');
+        setFormPod('');
+        setFormKv('');
+    }
+
     useEffect(() => {
         async function run() {
             const username = localStorage.getItem('osm_username');
@@ -34,29 +90,11 @@ export default function App() {
             setUser({username, password, pod, kv});
             if (username && password) {
                 try {
-                    // const userData = await api.isUserLoggedIn(username);
-                    // if (!userData.loggedin) {
-                    //     await api.login(username, password);
-                    //     // todo validate answer
-                    //
-                    //     //     setUserStatus(STATUS_NOT_AUTH);
-                    //     //     return;
-                    //     //
-                    //     //
-                    //     // setUserStatus(STATUS_NOT_AUTH);
-                    //     // return;
-                    // }
-
-                    await api.login(username, password);
-                    const podData = await api.podOpen(pod, password);
-                    const kvData = await api.kvOpen(kv);
-                    // todo check pod & kv answers
-                    window._fair_kv = kv;
-                    window._fair_pod = pod;
-                    setUserStatus(STATUS_AUTH_SUCCESS);
+                    await fullLogin(username, password, pod, kv);
                 } catch (e) {
                     console.log('error', e);
                     setUserStatus(STATUS_ERROR);
+                    setUserStatusText(`${e.message}. Can't login with stored credentials. Refresh page or enter new credentials.`);
                 }
             } else {
                 setUserStatus(STATUS_NOT_AUTH);
@@ -79,96 +117,148 @@ export default function App() {
         tangramLayer.addTo(map);
     }, [map]);
 
-    function isSubmitFormEnabled() {
-        return formUsername && formPassword && formPod && formKv;
-    }
-
     return (
-        <div className="App container py-5">
-            <h2 className="pb-2 border-bottom">Decentralized map service</h2>
-            {userStatus === STATUS_CHECKING && <div>
-                Checking user...
+        <>
+            <header id="header">
+                <div className="container">
+                    <div id="logo" className="float-left" onClick={e => {
+                        e.preventDefault();
+                        setPage(PAGE_MAIN);
+                    }}>
+                        <h1><a href="#" className="scrollto">Fair<span>Maps</span></a></h1>
+                    </div>
+
+                    <nav id="nav-menu-container">
+                        <ul className="nav-menu">
+                            <li className={page === PAGE_MAIN ? 'menu-active' : ''}><a href="#" onClick={e => {
+                                e.preventDefault();
+                                setPage(PAGE_MAIN);
+                            }}>Home</a></li>
+
+                            <li className={page === PAGE_ABOUT ? 'menu-active' : ''}><a href="#" onClick={e => {
+                                e.preventDefault();
+                                setPage(PAGE_ABOUT);
+                            }}>About</a></li>
+
+                            <li className={page === PAGE_MAP ? 'menu-active' : ''}><a href="#" onClick={e => {
+                                e.preventDefault();
+                                setPage(PAGE_MAP);
+                            }}>Login</a></li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </header>
+
+            {page === PAGE_MAIN && <div className="App">
+                <section id="intro">
+                    <div className="intro-content">
+                        <h2>You deserve <span>fair</span><br/>maps!</h2>
+                        <div>
+                            <a href="#" className="btn-get-started scrollto" onClick={e => {
+                                e.preventDefault();
+                                setPage(PAGE_MAP);
+                            }}>Get Started</a>
+                        </div>
+                    </div>
+
+                    <div id="intro-carousel" className="owl-carousel">
+                        <div className="item" style={{
+                            backgroundImage: `url('${img1}')`
+                        }}/>
+                    </div>
+
+                </section>
             </div>}
-            {userStatus === 'not_auth' && <div>
-                <form onSubmit={async e => {
-                    e.preventDefault();
-                    setUserStatusText('');
-                    setUserStatus(STATUS_CHECKING);
-                    const loginData = await api.login(formUsername, formPassword);
-                    const podData = await api.podOpen(formPod, formPassword);
-                    const kvData = await api.kvOpen(formKv);
 
-                    const errorItem = [
-                        {item: loginData, text: 'Incorrect login or password'},
-                        {item: podData, text: 'Can\'t open pod'},
-                        {item: kvData, text: 'Can\'t open kv'}
-                    ].find(data => data.item.code !== 200);
+            {page === PAGE_ABOUT && <div className="App container py-5">
+                Hello world
+            </div>}
 
-                    if (errorItem) {
+            {page === PAGE_MAP && <div className="App container py-5">
+                {userStatus === STATUS_CHECKING && <div>
+                    Checking user...
+                </div>}
+
+                {userStatus === 'not_auth' && <div>
+                    <form onSubmit={async e => {
+                        e.preventDefault();
+                        if (await fullLogin(formUsername, formPassword, formPod, formKv)) {
+                            localStorage.setItem('osm_username', formUsername);
+                            localStorage.setItem('osm_password', formPassword);
+                            localStorage.setItem('osm_pod', formPod);
+                            localStorage.setItem('osm_kv', formKv);
+                        }
+                    }}>
+                        <fieldset disabled={userStatus !== STATUS_NOT_AUTH}>
+                            {userStatusText && <div className="alert alert-danger" role="alert">
+                                {userStatusText}
+                            </div>}
+                            <div className="mb-3">
+                                <label htmlFor="exampleInputEmail1" className="form-label">Username</label>
+                                <input type="text" className="form-control"
+                                       onChange={e => setFormUsername(e.target.value)}
+                                       value={formUsername}/>
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
+                                <input type="password" className="form-control"
+                                       onChange={e => setFormPassword(e.target.value)}
+                                       value={formPassword}/>
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="exampleInputPassword1" className="form-label">Pod name</label>
+                                <input type="text" className="form-control"
+                                       onChange={e => setFormPod(e.target.value)}
+                                       value={formPod}/>
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="exampleInputPassword1" className="form-label">Pod kv</label>
+                                <input type="text" className="form-control"
+                                       onChange={e => setFormKv(e.target.value)}
+                                       value={formKv}/>
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
+                                Submit
+                            </button>
+                        </fieldset>
+                    </form>
+                </div>}
+                {userStatus === 'error' && <div>
+                    {userStatusText && <div className="alert alert-danger" role="alert">
+                        {userStatusText}
+                    </div>}
+
+                    <button className="btn btn-primary" onClick={() => {
                         setUserStatus(STATUS_NOT_AUTH);
-                        setUserStatusText(errorItem.text);
-                    } else {
-                        localStorage.setItem('osm_username', formUsername);
-                        localStorage.setItem('osm_password', formPassword);
-                        localStorage.setItem('osm_pod', formPod);
-                        localStorage.setItem('osm_kv', formKv);
-                        window._fair_kv = formKv;
-                        window._fair_pod = formPod;
-                        setUser({
-                            username: formUsername,
-                            password: formPassword,
-                            pod: formPod,
-                            kv: formKv,
-                        });
-                        setUserStatus(STATUS_AUTH_SUCCESS);
+                        setUserStatusText('');
+                        resetCredentials();
+                        resetForm();
                     }
-                }}>
-                    <fieldset disabled={userStatus !== STATUS_NOT_AUTH}>
-                        {userStatusText && <div className="alert alert-danger" role="alert">
-                            {userStatusText}
-                        </div>}
-                        <div className="mb-3">
-                            <label htmlFor="exampleInputEmail1" className="form-label">Username</label>
-                            <input type="text" className="form-control" onChange={e => setFormUsername(e.target.value)}
-                                   value={formUsername}/>
-                        </div>
-
-                        <div className="mb-3">
-                            <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                            <input type="password" className="form-control"
-                                   onChange={e => setFormPassword(e.target.value)}
-                                   value={formPassword}/>
-                        </div>
-
-                        <div className="mb-3">
-                            <label htmlFor="exampleInputPassword1" className="form-label">Pod name</label>
-                            <input type="text" className="form-control"
-                                   onChange={e => setFormPod(e.target.value)}
-                                   value={formPod}/>
-                        </div>
-
-                        <div className="mb-3">
-                            <label htmlFor="exampleInputPassword1" className="form-label">Pod kv</label>
-                            <input type="text" className="form-control"
-                                   onChange={e => setFormKv(e.target.value)}
-                                   value={formKv}/>
-                        </div>
-
-                        <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
-                            Submit
-                        </button>
-                    </fieldset>
-                </form>
+                    }>
+                        Enter new credentials
+                    </button>
+                </div>}
+                {userStatus === STATUS_AUTH_SUCCESS && <MapContainer
+                    whenCreated={setMap}
+                    center={[46.947978, 7.440386]}
+                    zoom={15}
+                    scrollWheelZoom={false}>
+                </MapContainer>}
             </div>}
-            {userStatus === 'error' && <div>
-                Error(
-            </div>}
-            {userStatus === STATUS_AUTH_SUCCESS && <MapContainer
-                whenCreated={setMap}
-                center={[46.948919, 7.440979]}
-                zoom={13}
-                scrollWheelZoom={false}>
-            </MapContainer>}
-        </div>
+
+            <footer id="footer">
+                <div className="container">
+                    <div className="copyright">
+                        From <a href="https://fairdatasociety.org/">Fair Data Society</a> with ❤️<br/>
+                        <a href="https://github.com/fairDataSociety/osm-example">Github</a>
+                    </div>
+                </div>
+            </footer>
+        </>
     );
 };

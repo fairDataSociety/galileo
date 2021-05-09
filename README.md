@@ -21,6 +21,10 @@ OSM Example
 
 ### Other
 
+Tile files example for Switzerland: https://testeron.pro/osm/tiles_sw.zip
+
+Csv tiles example for Switzerland: https://testeron.pro/osm/map_sw.csv.zip
+
 Download tiles: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813
 
 Make tiles: https://github.com/tilezen/vector-datasource/wiki/Mapzen-Vector-Tile-Service

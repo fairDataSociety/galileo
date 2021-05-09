@@ -20,6 +20,7 @@ export default function App() {
     const [userStatus, setUserStatus] = useState(STATUS_CHECKING);
     const [userStatusText, setUserStatusText] = useState('');
     const [user, setUser] = useState({
+        isLoggedIn: false,
         username: '',
         password: '',
         pod: '',
@@ -52,7 +53,7 @@ export default function App() {
             } else {
                 window._fair_kv = kv;
                 window._fair_pod = pod;
-                setUser({username, password, pod, kv});
+                setUser({username, password, pod, kv, isLoggedIn: true});
                 setUserStatus(STATUS_AUTH_SUCCESS);
             }
         } catch (e) {
@@ -68,6 +69,7 @@ export default function App() {
     }
 
     function resetCredentials() {
+        setUser({username: '', password: '', pod: '', kv: '', isLoggedIn: false});
         localStorage.setItem('osm_username', '');
         localStorage.setItem('osm_password', '');
         localStorage.setItem('osm_pod', '');
@@ -87,10 +89,14 @@ export default function App() {
             const password = localStorage.getItem('osm_username');
             const pod = localStorage.getItem('osm_pod');
             const kv = localStorage.getItem('osm_kv');
-            setUser({username, password, pod, kv});
+            setUser({username, password, pod, kv, isLoggedIn: false});
             if (username && password) {
                 try {
                     await fullLogin(username, password, pod, kv);
+                    setUser(user => {
+                        return {...user, isLoggedIn: true};
+                    });
+
                 } catch (e) {
                     console.log('error', e);
                     setUserStatus(STATUS_ERROR);
@@ -140,10 +146,29 @@ export default function App() {
                                 setPage(PAGE_ABOUT);
                             }}>About</a></li>
 
+                            <li className=""><a target="_blank"
+                                                href="https://github.com/fairDataSociety/osm-example">Docs</a></li>
+
+                            {!user.isLoggedIn &&
                             <li className={page === PAGE_MAP ? 'menu-active' : ''}><a href="#" onClick={e => {
                                 e.preventDefault();
                                 setPage(PAGE_MAP);
-                            }}>Login</a></li>
+                            }}>Login</a></li>}
+
+                            {user.isLoggedIn &&
+                            <li className={page === PAGE_MAP ? 'menu-active' : ''}><a href="#" onClick={e => {
+                                e.preventDefault();
+                                setPage(PAGE_MAP);
+                            }}>Map</a></li>}
+
+                            {user.isLoggedIn && <li className=""><a href="#" onClick={e => {
+                                e.preventDefault();
+                                if (window.confirm('Really logout?')) {
+                                    resetCredentials();
+                                    resetForm();
+                                    setUserStatus(STATUS_NOT_AUTH);
+                                }
+                            }}>Logout</a></li>}
                         </ul>
                     </nav>
 
@@ -172,7 +197,8 @@ export default function App() {
             </div>}
 
             {page === PAGE_ABOUT && <div className="App container py-5">
-                Hello world
+                FairMaps - an open source project that allows you to use, create and modify maps of various
+                participants.
             </div>}
 
             {page === PAGE_MAP && <div className="App container py-5">
@@ -180,53 +206,58 @@ export default function App() {
                     Checking user...
                 </div>}
 
-                {userStatus === 'not_auth' && <div>
-                    <form onSubmit={async e => {
-                        e.preventDefault();
-                        if (await fullLogin(formUsername, formPassword, formPod, formKv)) {
-                            localStorage.setItem('osm_username', formUsername);
-                            localStorage.setItem('osm_password', formPassword);
-                            localStorage.setItem('osm_pod', formPod);
-                            localStorage.setItem('osm_kv', formKv);
-                        }
-                    }}>
-                        <fieldset disabled={userStatus !== STATUS_NOT_AUTH}>
-                            {userStatusText && <div className="alert alert-danger" role="alert">
-                                {userStatusText}
-                            </div>}
-                            <div className="mb-3">
-                                <label htmlFor="exampleInputEmail1" className="form-label">Username</label>
-                                <input type="text" className="form-control"
-                                       onChange={e => setFormUsername(e.target.value)}
-                                       value={formUsername}/>
-                            </div>
+                {userStatus === 'not_auth' &&
+                <div className="d-flex justify-content-center">
+                    <div className="col-sm-9 col-md-6">
+                        <h3>Login with local FairOS credentials</h3>
+                        <form onSubmit={async e => {
+                            e.preventDefault();
+                            if (await fullLogin(formUsername, formPassword, formPod, formKv)) {
+                                localStorage.setItem('osm_username', formUsername);
+                                localStorage.setItem('osm_password', formPassword);
+                                localStorage.setItem('osm_pod', formPod);
+                                localStorage.setItem('osm_kv', formKv);
+                            }
+                        }}>
+                            <fieldset disabled={userStatus !== STATUS_NOT_AUTH}>
+                                {userStatusText && <div className="alert alert-danger" role="alert">
+                                    {userStatusText}
+                                </div>}
+                                <div className="mb-3">
+                                    <label htmlFor="exampleInputEmail1" className="form-label">Username</label>
+                                    <input type="text" className="form-control"
+                                           onChange={e => setFormUsername(e.target.value)}
+                                           value={formUsername}/>
+                                </div>
 
-                            <div className="mb-3">
-                                <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                                <input type="password" className="form-control"
-                                       onChange={e => setFormPassword(e.target.value)}
-                                       value={formPassword}/>
-                            </div>
+                                <div className="mb-3">
+                                    <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
+                                    <input type="password" className="form-control"
+                                           onChange={e => setFormPassword(e.target.value)}
+                                           value={formPassword}/>
+                                </div>
 
-                            <div className="mb-3">
-                                <label htmlFor="exampleInputPassword1" className="form-label">Pod name</label>
-                                <input type="text" className="form-control"
-                                       onChange={e => setFormPod(e.target.value)}
-                                       value={formPod}/>
-                            </div>
+                                <div className="mb-3">
+                                    <label htmlFor="exampleInputPassword1" className="form-label">Pod name</label>
+                                    <input type="text" className="form-control"
+                                           onChange={e => setFormPod(e.target.value)}
+                                           value={formPod}/>
+                                </div>
 
-                            <div className="mb-3">
-                                <label htmlFor="exampleInputPassword1" className="form-label">Pod kv</label>
-                                <input type="text" className="form-control"
-                                       onChange={e => setFormKv(e.target.value)}
-                                       value={formKv}/>
-                            </div>
+                                <div className="mb-3">
+                                    <label htmlFor="exampleInputPassword1" className="form-label">Pod kv (key-value
+                                        table)</label>
+                                    <input type="text" className="form-control"
+                                           onChange={e => setFormKv(e.target.value)}
+                                           value={formKv}/>
+                                </div>
 
-                            <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
-                                Submit
-                            </button>
-                        </fieldset>
-                    </form>
+                                <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
+                                    Submit
+                                </button>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>}
                 {userStatus === 'error' && <div>
                     {userStatusText && <div className="alert alert-danger" role="alert">
@@ -261,4 +292,4 @@ export default function App() {
             </footer>
         </>
     );
-};
+}

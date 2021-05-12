@@ -3,6 +3,9 @@ import './App.css';
 import {useEffect, useMemo, useState} from "react";
 import FairOS from "./service/FairOS";
 import img1 from './themes/reveal/img/intro-carousel/space.jpg';
+import Login from "./Login";
+import {useDispatch, useSelector} from "react-redux";
+import {selectUser, setUser,} from './features/user/userSlice';
 
 export default function App() {
     const PAGE_MAIN = 'main';
@@ -15,22 +18,13 @@ export default function App() {
     const STATUS_ERROR = 'error';
 
     const api = useMemo(() => new FairOS(), []);
+    const dispatch = useDispatch();
     const [map, setMap] = useState(null);
     const [page, setPage] = useState(PAGE_MAIN);
     const [userStatus, setUserStatus] = useState(STATUS_CHECKING);
     const [userStatusText, setUserStatusText] = useState('');
-    const [user, setUser] = useState({
-        isLoggedIn: false,
-        username: '',
-        password: '',
-        pod: '',
-        kv: ''
-    });
 
-    const [formUsername, setFormUsername] = useState('');
-    const [formPassword, setFormPassword] = useState('');
-    const [formPod, setFormPod] = useState('');
-    const [formKv, setFormKv] = useState('');
+    const user = useSelector(selectUser);
 
     async function fullLogin(username, password, pod, kv) {
         setUserStatusText('');
@@ -53,7 +47,7 @@ export default function App() {
             } else {
                 window._fair_kv = kv;
                 window._fair_pod = pod;
-                setUser({username, password, pod, kv, isLoggedIn: true});
+                dispatch(setUser({username, password, pod, kv, isLoggedIn: true}));
                 setUserStatus(STATUS_AUTH_SUCCESS);
             }
         } catch (e) {
@@ -64,23 +58,12 @@ export default function App() {
         return !errorItem;
     }
 
-    function isSubmitFormEnabled() {
-        return formUsername && formPassword && formPod && formKv;
-    }
-
     function resetCredentials() {
-        setUser({username: '', password: '', pod: '', kv: '', isLoggedIn: false});
+        dispatch(setUser({username: '', password: '', pod: '', kv: '', isLoggedIn: false}));
         localStorage.setItem('osm_username', '');
         localStorage.setItem('osm_password', '');
         localStorage.setItem('osm_pod', '');
         localStorage.setItem('osm_kv', '');
-    }
-
-    function resetForm() {
-        setFormUsername('');
-        setFormPassword('');
-        setFormPod('');
-        setFormKv('');
     }
 
     useEffect(() => {
@@ -89,14 +72,10 @@ export default function App() {
             const password = localStorage.getItem('osm_username');
             const pod = localStorage.getItem('osm_pod');
             const kv = localStorage.getItem('osm_kv');
-            setUser({username, password, pod, kv, isLoggedIn: false});
+            dispatch(setUser({username, password, pod, kv, isLoggedIn: false}));
             if (username && password) {
                 try {
                     await fullLogin(username, password, pod, kv);
-                    setUser(user => {
-                        return {...user, isLoggedIn: true};
-                    });
-
                 } catch (e) {
                     console.log('error', e);
                     setUserStatus(STATUS_ERROR);
@@ -165,7 +144,7 @@ export default function App() {
                                 e.preventDefault();
                                 if (window.confirm('Really logout?')) {
                                     resetCredentials();
-                                    resetForm();
+                                    // resetForm();
                                     setUserStatus(STATUS_NOT_AUTH);
                                 }
                             }}>Logout</a></li>}
@@ -206,59 +185,8 @@ export default function App() {
                     Checking user...
                 </div>}
 
-                {userStatus === 'not_auth' &&
-                <div className="d-flex justify-content-center">
-                    <div className="col-sm-9 col-md-6">
-                        <h3>Login with local FairOS credentials</h3>
-                        <form onSubmit={async e => {
-                            e.preventDefault();
-                            if (await fullLogin(formUsername, formPassword, formPod, formKv)) {
-                                localStorage.setItem('osm_username', formUsername);
-                                localStorage.setItem('osm_password', formPassword);
-                                localStorage.setItem('osm_pod', formPod);
-                                localStorage.setItem('osm_kv', formKv);
-                            }
-                        }}>
-                            <fieldset disabled={userStatus !== STATUS_NOT_AUTH}>
-                                {userStatusText && <div className="alert alert-danger" role="alert">
-                                    {userStatusText}
-                                </div>}
-                                <div className="mb-3">
-                                    <label htmlFor="exampleInputEmail1" className="form-label">Username</label>
-                                    <input type="text" className="form-control"
-                                           onChange={e => setFormUsername(e.target.value)}
-                                           value={formUsername}/>
-                                </div>
+                {userStatus === 'not_auth' && <Login fullLogin={fullLogin}/>}
 
-                                <div className="mb-3">
-                                    <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                                    <input type="password" className="form-control"
-                                           onChange={e => setFormPassword(e.target.value)}
-                                           value={formPassword}/>
-                                </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="exampleInputPassword1" className="form-label">Pod name</label>
-                                    <input type="text" className="form-control"
-                                           onChange={e => setFormPod(e.target.value)}
-                                           value={formPod}/>
-                                </div>
-
-                                <div className="mb-3">
-                                    <label htmlFor="exampleInputPassword1" className="form-label">Pod kv (key-value
-                                        table)</label>
-                                    <input type="text" className="form-control"
-                                           onChange={e => setFormKv(e.target.value)}
-                                           value={formKv}/>
-                                </div>
-
-                                <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
-                                    Submit
-                                </button>
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>}
                 {userStatus === 'error' && <div>
                     {userStatusText && <div className="alert alert-danger" role="alert">
                         {userStatusText}
@@ -268,7 +196,7 @@ export default function App() {
                         setUserStatus(STATUS_NOT_AUTH);
                         setUserStatusText('');
                         resetCredentials();
-                        resetForm();
+                        // resetForm();
                     }
                     }>
                         Enter new credentials

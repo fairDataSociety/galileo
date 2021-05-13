@@ -6,11 +6,13 @@ import img1 from './themes/reveal/img/intro-carousel/space.jpg';
 import Login from "./Login";
 import {useDispatch, useSelector} from "react-redux";
 import {selectUser, setUser,} from './features/user/userSlice';
+import Catalog from "./features/catalog/Catalog";
 
 export default function App() {
     const PAGE_MAIN = 'main';
     const PAGE_ABOUT = 'about';
     const PAGE_MAP = 'map';
+    const PAGE_CATALOG = 'catalog';
 
     const STATUS_CHECKING = 'checking';
     const STATUS_NOT_AUTH = 'not_auth';
@@ -120,13 +122,15 @@ export default function App() {
                                 setPage(PAGE_MAIN);
                             }}>Home</a></li>
 
+                            <li className={page === PAGE_CATALOG ? 'menu-active' : ''}><a href="#" onClick={e => {
+                                e.preventDefault();
+                                setPage(PAGE_CATALOG);
+                            }}>Catalog</a></li>
+
                             <li className={page === PAGE_ABOUT ? 'menu-active' : ''}><a href="#" onClick={e => {
                                 e.preventDefault();
                                 setPage(PAGE_ABOUT);
                             }}>About</a></li>
-
-                            <li className=""><a target="_blank"
-                                                href="https://github.com/fairDataSociety/osm-example">Docs</a></li>
 
                             {!user.isLoggedIn &&
                             <li className={page === PAGE_MAP ? 'menu-active' : ''}><a href="#" onClick={e => {
@@ -175,6 +179,10 @@ export default function App() {
                 </section>
             </div>}
 
+            {page === PAGE_CATALOG && <div className="App container py-5">
+                <Catalog/>
+            </div>}
+
             {page === PAGE_ABOUT && <div className="App container py-5">
                 FairMaps - an open source project that allows you to use, create and modify maps of various
                 participants.
@@ -214,7 +222,7 @@ export default function App() {
                 <div className="container">
                     <div className="copyright">
                         From <a href="https://fairdatasociety.org/">Fair Data Society</a> with ❤️<br/>
-                        <a href="https://github.com/fairDataSociety/osm-example">Github</a>
+                        <a href="https://github.com/fairDataSociety/osm-example">Github & Docs</a>
                     </div>
                 </div>
             </footer>

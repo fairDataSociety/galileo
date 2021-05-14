@@ -35,6 +35,14 @@ export default class FairOS {
         return this.api('POST', `${this.apiUrl}user/login`, formData);
     }
 
+    signup(username, password, mnemonic) {
+        let formData = new FormData();
+        formData.append('user_name', username);
+        formData.append('password', password);
+        formData.append('mnemonic', mnemonic);
+        return this.api('POST', `${this.apiUrl}user/signup`, formData);
+    }
+
     podOpen(pod, password) {
         let formData = new FormData();
         formData.append('pod_name', pod);

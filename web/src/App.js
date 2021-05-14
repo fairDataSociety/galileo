@@ -2,18 +2,18 @@ import {MapContainer} from 'react-leaflet';
 import './App.css';
 import {useEffect, useMemo, useState} from "react";
 import FairOS from "./service/FairOS";
-import img1 from './themes/reveal/img/intro-carousel/space.jpg';
 import Login from "./Login";
-import {useDispatch, useSelector} from "react-redux";
-import {selectUser, setUser,} from './features/user/userSlice';
+import {useDispatch} from "react-redux";
+import {setUser,} from './features/user/userSlice';
 import Catalog from "./features/catalog/Catalog";
+import Registration from "./features/registration/Registration";
+import {Route, Switch, useLocation} from "react-router-dom";
+import About from "./About";
+import Home from "./Home";
+import Footer from "./Footer";
+import Header from "./Header";
 
 export default function App() {
-    const PAGE_MAIN = 'main';
-    const PAGE_ABOUT = 'about';
-    const PAGE_MAP = 'map';
-    const PAGE_CATALOG = 'catalog';
-
     const STATUS_CHECKING = 'checking';
     const STATUS_NOT_AUTH = 'not_auth';
     const STATUS_AUTH_SUCCESS = 'auth_success';
@@ -22,11 +22,10 @@ export default function App() {
     const api = useMemo(() => new FairOS(), []);
     const dispatch = useDispatch();
     const [map, setMap] = useState(null);
-    const [page, setPage] = useState(PAGE_MAIN);
     const [userStatus, setUserStatus] = useState(STATUS_CHECKING);
     const [userStatusText, setUserStatusText] = useState('');
-
-    const user = useSelector(selectUser);
+    const location = useLocation();
+    const path = location.pathname;
 
     async function fullLogin(username, password, pod, kv) {
         setUserStatusText('');
@@ -106,126 +105,75 @@ export default function App() {
 
     return (
         <>
-            <header id="header">
-                <div className="container">
-                    <div id="logo" className="float-left" onClick={e => {
-                        e.preventDefault();
-                        setPage(PAGE_MAIN);
-                    }}>
-                        <h1><a href="#" className="scrollto">Fair<span>Maps</span></a></h1>
-                    </div>
+            <Header onLogout={_ => {
+                resetCredentials();
+                // resetForm();
+                setUserStatus(STATUS_NOT_AUTH);
+            }
+            }/>
 
-                    <nav id="nav-menu-container">
-                        <ul className="nav-menu">
-                            <li className={page === PAGE_MAIN ? 'menu-active' : ''}><a href="#" onClick={e => {
-                                e.preventDefault();
-                                setPage(PAGE_MAIN);
-                            }}>Home</a></li>
+            <div className={path === '/' ? 'App' : 'App container py-5'}>
+                <Switch>
+                    <Route path="/login">
+                        <Login fullLogin={fullLogin}/>
+                    </Route>
 
-                            <li className={page === PAGE_CATALOG ? 'menu-active' : ''}><a href="#" onClick={e => {
-                                e.preventDefault();
-                                setPage(PAGE_CATALOG);
-                            }}>Catalog</a></li>
+                    <Route path="/map">
+                        {userStatus === STATUS_CHECKING && <div>
+                            Checking user...
+                        </div>}
 
-                            <li className={page === PAGE_ABOUT ? 'menu-active' : ''}><a href="#" onClick={e => {
-                                e.preventDefault();
-                                setPage(PAGE_ABOUT);
-                            }}>About</a></li>
+                        {userStatus === 'not_auth' && <Login fullLogin={fullLogin}/>}
 
-                            {!user.isLoggedIn &&
-                            <li className={page === PAGE_MAP ? 'menu-active' : ''}><a href="#" onClick={e => {
-                                e.preventDefault();
-                                setPage(PAGE_MAP);
-                            }}>Login</a></li>}
+                        {userStatus === 'error' && <div>
+                            {userStatusText && <div className="alert alert-danger" role="alert">
+                                {userStatusText}
+                            </div>}
 
-                            {user.isLoggedIn &&
-                            <li className={page === PAGE_MAP ? 'menu-active' : ''}><a href="#" onClick={e => {
-                                e.preventDefault();
-                                setPage(PAGE_MAP);
-                            }}>Map</a></li>}
+                            <button className="btn btn-primary" onClick={() => {
+                                setUserStatus(STATUS_NOT_AUTH);
+                                setUserStatusText('');
+                                resetCredentials();
+                                // resetForm();
+                            }
+                            }>
+                                Enter new credentials
+                            </button>
+                        </div>}
+                        {userStatus === STATUS_AUTH_SUCCESS && <MapContainer
+                            whenCreated={setMap}
+                            center={[46.947978, 7.440386]}
+                            zoom={15}
+                            scrollWheelZoom={false}>
+                        </MapContainer>}
+                    </Route>
 
-                            {user.isLoggedIn && <li className=""><a href="#" onClick={e => {
-                                e.preventDefault();
-                                if (window.confirm('Really logout?')) {
-                                    resetCredentials();
-                                    // resetForm();
-                                    setUserStatus(STATUS_NOT_AUTH);
-                                }
-                            }}>Logout</a></li>}
-                        </ul>
-                    </nav>
+                    <Route path="/about">
+                        <About/>
+                    </Route>
 
-                </div>
-            </header>
+                    <Route path="/catalog">
+                        <Catalog/>
+                    </Route>
 
-            {page === PAGE_MAIN && <div className="App">
-                <section id="intro">
-                    <div className="intro-content">
-                        <h2>You deserve <span>fair</span><br/>maps!</h2>
-                        <div>
-                            <a href="#" className="btn-get-started scrollto" onClick={e => {
-                                e.preventDefault();
-                                setPage(PAGE_MAP);
-                            }}>Get Started</a>
-                        </div>
-                    </div>
+                    <Route path="/registration">
+                        <Registration afterRegistration={async ({username, password}) => {
+                            // todo store data, auth, redirect to catalog
+                            // todo or just track status var and execute some code in app?
+                            if (await fullLogin(username, password)) {
 
-                    <div id="intro-carousel" className="owl-carousel">
-                        <div className="item" style={{
-                            backgroundImage: `url('${img1}')`
-                        }}/>
-                    </div>
+                            }
+                        }
+                        }/>
+                    </Route>
 
-                </section>
-            </div>}
+                    <Route path="/">
+                        <Home/>
+                    </Route>
+                </Switch>
+            </div>
 
-            {page === PAGE_CATALOG && <div className="App container py-5">
-                <Catalog/>
-            </div>}
-
-            {page === PAGE_ABOUT && <div className="App container py-5">
-                FairMaps - an open source project that allows you to use, create and modify maps of various
-                participants.
-            </div>}
-
-            {page === PAGE_MAP && <div className="App container py-5">
-                {userStatus === STATUS_CHECKING && <div>
-                    Checking user...
-                </div>}
-
-                {userStatus === 'not_auth' && <Login fullLogin={fullLogin}/>}
-
-                {userStatus === 'error' && <div>
-                    {userStatusText && <div className="alert alert-danger" role="alert">
-                        {userStatusText}
-                    </div>}
-
-                    <button className="btn btn-primary" onClick={() => {
-                        setUserStatus(STATUS_NOT_AUTH);
-                        setUserStatusText('');
-                        resetCredentials();
-                        // resetForm();
-                    }
-                    }>
-                        Enter new credentials
-                    </button>
-                </div>}
-                {userStatus === STATUS_AUTH_SUCCESS && <MapContainer
-                    whenCreated={setMap}
-                    center={[46.947978, 7.440386]}
-                    zoom={15}
-                    scrollWheelZoom={false}>
-                </MapContainer>}
-            </div>}
-
-            <footer id="footer">
-                <div className="container">
-                    <div className="copyright">
-                        From <a href="https://fairdatasociety.org/">Fair Data Society</a> with ❤️<br/>
-                        <a href="https://github.com/fairDataSociety/osm-example">Github & Docs</a>
-                    </div>
-                </div>
-            </footer>
+            <Footer/>
         </>
     );
 }

@@ -19,9 +19,9 @@ export const catalogSlice = createSlice({
     name: 'catalog',
     initialState,
     reducers: {
-        setUser: (state, action) => {
-
-        }
+        setList: (state, action) => {
+            state.list = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -35,7 +35,7 @@ export const catalogSlice = createSlice({
     },
 });
 
-export const {setUser} = catalogSlice.actions;
+export const {setList} = catalogSlice.actions;
 export const selectCatalog = (state) => state.catalog;
 export const selectCatalogList = (state) => state.catalog.list;
 export default catalogSlice.reducer;

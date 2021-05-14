@@ -18,6 +18,8 @@ OSM Example
 
 7) Sign in with your credentials on web project
 
+### How to create and share your own map?
+
 
 ### Other
 

@@ -1,34 +1,35 @@
-import {useState} from "react";
-import {useSelector} from "react-redux";
-import {selectUser} from "./features/user/userSlice";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {login, resetStatus, selectUser, tryLogin} from "./features/user/userSlice";
+import {Redirect, useLocation} from "react-router-dom";
 
-export default function Login({fullLogin}) {
+export default function Login() {
+    const dispatch = useDispatch();
     const [formUsername, setFormUsername] = useState('');
     const [formPassword, setFormPassword] = useState('');
-    const [formPod, setFormPod] = useState('');
-    const [formKv, setFormKv] = useState('');
     const user = useSelector(selectUser);
+    let location = useLocation();
+    let {from} = location.state || {from: {pathname: "/"}};
+
+    useEffect(() => {
+        dispatch(resetStatus());
+        dispatch(tryLogin());
+    }, []);
 
     function isSubmitFormEnabled() {
-        return formUsername && formPassword && formPod && formKv;
+        return formUsername && formPassword;
     }
 
     return (
         <div className="d-flex justify-content-center">
+            {user.isLoggedIn ? <Redirect to={from}/> : ''}
             <div className="col-sm-9 col-md-6">
-                <h3>Login with local FairOS credentials</h3>
-                <form onSubmit={async e => {
+                <h3>Login with FairOS credentials</h3>
+                <form onSubmit={ e => {
                     e.preventDefault();
-                    if (await fullLogin(formUsername, formPassword, formPod, formKv)) {
-                        localStorage.setItem('osm_username', formUsername);
-                        localStorage.setItem('osm_password', formPassword);
-                        localStorage.setItem('osm_pod', formPod);
-                        localStorage.setItem('osm_kv', formKv);
-                    }
+                    dispatch(login({username: formUsername, password: formPassword}));
                 }}>
-                    <fieldset
-                        // disabled={user.status !== STATUS_NOT_AUTH}
-                    >
+                    <fieldset disabled={user.status === 'login' || user.isLoggedIn}>
                         {user.statusText && <div className="alert alert-danger" role="alert">
                             {user.statusText}
                         </div>}
@@ -46,22 +47,9 @@ export default function Login({fullLogin}) {
                                    value={formPassword}/>
                         </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="exampleInputPassword1" className="form-label">Pod name</label>
-                            <input type="text" className="form-control"
-                                   onChange={e => setFormPod(e.target.value)}
-                                   value={formPod}/>
-                        </div>
-
-                        <div className="mb-3">
-                            <label htmlFor="exampleInputPassword1" className="form-label">Pod kv (key-value
-                                table)</label>
-                            <input type="text" className="form-control"
-                                   onChange={e => setFormKv(e.target.value)}
-                                   value={formKv}/>
-                        </div>
-
                         <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
+                            {user.status === 'login' ? <span className="spinner-border spinner-border-sm" role="status"
+                                                             aria-hidden="true"/> : ''}
                             Submit
                         </button>
                     </fieldset>

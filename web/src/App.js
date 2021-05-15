@@ -3,11 +3,11 @@ import './App.css';
 import {useEffect, useMemo, useState} from "react";
 import FairOS from "./service/FairOS";
 import Login from "./Login";
-import {useDispatch} from "react-redux";
-import {setUser,} from './features/user/userSlice';
+import {useDispatch, useSelector} from "react-redux";
+import {selectUser, setUser,} from './features/user/userSlice';
 import Catalog from "./features/catalog/Catalog";
 import Registration from "./features/registration/Registration";
-import {Route, Switch, useLocation} from "react-router-dom";
+import {Route, Switch, useLocation, Redirect} from "react-router-dom";
 import About from "./About";
 import Home from "./Home";
 import Footer from "./Footer";
@@ -68,29 +68,6 @@ export default function App() {
     }
 
     useEffect(() => {
-        async function run() {
-            const username = localStorage.getItem('osm_username');
-            const password = localStorage.getItem('osm_username');
-            const pod = localStorage.getItem('osm_pod');
-            const kv = localStorage.getItem('osm_kv');
-            dispatch(setUser({username, password, pod, kv, isLoggedIn: false}));
-            if (username && password) {
-                try {
-                    await fullLogin(username, password, pod, kv);
-                } catch (e) {
-                    console.log('error', e);
-                    setUserStatus(STATUS_ERROR);
-                    setUserStatusText(`${e.message}. Can't login with stored credentials. Refresh page or enter new credentials.`);
-                }
-            } else {
-                setUserStatus(STATUS_NOT_AUTH);
-            }
-        }
-
-        run();
-    }, []);
-
-    useEffect(() => {
         if (!map || map._layers.length > 0) {
             return;
         }
@@ -102,6 +79,28 @@ export default function App() {
 
         tangramLayer.addTo(map);
     }, [map]);
+
+    function PrivateRoute({children, ...rest}) {
+        const user = useSelector(selectUser);
+
+        return (
+            <Route
+                {...rest}
+                render={({location}) =>
+                    user.isLoggedIn ? (
+                        children
+                    ) : (
+                        <Redirect
+                            to={{
+                                pathname: "/login",
+                                state: {from: location}
+                            }}
+                        />
+                    )
+                }
+            />
+        );
+    }
 
     return (
         <>
@@ -118,7 +117,7 @@ export default function App() {
                         <Login fullLogin={fullLogin}/>
                     </Route>
 
-                    <Route path="/map">
+                    <PrivateRoute path="/map">
                         {userStatus === STATUS_CHECKING && <div>
                             Checking user...
                         </div>}
@@ -146,7 +145,7 @@ export default function App() {
                             zoom={15}
                             scrollWheelZoom={false}>
                         </MapContainer>}
-                    </Route>
+                    </PrivateRoute>
 
                     <Route path="/about">
                         <About/>

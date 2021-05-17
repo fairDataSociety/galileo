@@ -61,6 +61,13 @@ export const userSlice = createSlice({
             state.pod = pod;
             state.kv = kv;
         },
+        fullReset: (state) => {
+            state.isLoggedIn = false;
+            state.username = '';
+            state.password = '';
+            state.pod = '';
+            state.kv = '';
+        },
         resetStatus: (state) => {
             state.status = '';
             state.statusText = '';
@@ -93,7 +100,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const {setUser, resetStatus} = userSlice.actions;
+export const {setUser, resetStatus, fullReset} = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -103,11 +110,10 @@ export const selectUser = (state) => state.user;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
-// export const incrementIfOdd = (amount) => (dispatch, getState) => {
-//     const currentValue = selectCount(getState());
-//     if (currentValue % 2 === 1) {
-//         dispatch(incrementByAmount(amount));
-//     }
-// };
+export const logout = () => (dispatch) => {
+    dispatch(fullReset());
+    localStorage.setItem('osm_username', '');
+    localStorage.setItem('osm_password', '');
+};
 
 export default userSlice.reducer;

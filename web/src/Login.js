@@ -9,7 +9,7 @@ export default function Login() {
     const [formPassword, setFormPassword] = useState('');
     const user = useSelector(selectUser);
     let location = useLocation();
-    let {from} = location.state || {from: {pathname: "/"}};
+    let {from} = location.state || {from: {pathname: "/map"}};
 
     useEffect(() => {
         dispatch(resetStatus());

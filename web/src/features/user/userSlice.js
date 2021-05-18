@@ -69,8 +69,8 @@ export const userSlice = createSlice({
             state.isLoggedIn = !!isLoggedIn;
             state.username = username;
             state.password = password;
-            state.pod = pod;
-            state.kv = kv;
+            state.pod = pod ? pod : null;
+            state.kv = kv ? kv : null;
         },
         fullReset: (state) => {
             state.isLoggedIn = false;

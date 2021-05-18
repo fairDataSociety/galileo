@@ -52,7 +52,7 @@ export default function Header({onLogout}) {
                                     onLogout();
                                 }
                             }
-                        }}>Logout</a></li>}
+                        }}>Logout ({user.username})</a></li>}
                     </ul>
                 </nav>
             </div>

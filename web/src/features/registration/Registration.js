@@ -1,8 +1,11 @@
 import {useDispatch, useSelector} from "react-redux";
 import {registrationAsync, reset, selectRegistration} from "./registrationSlice";
 import {useEffect, useState} from "react";
+import {ethers} from "ethers";
+import {Redirect} from "react-router-dom";
+import {setUser} from "../user/userSlice";
 
-export default function Registration({afterRegistration}) {
+export default function Registration() {
     const component = useSelector(selectRegistration);
     const dispatch = useDispatch();
 
@@ -12,17 +15,20 @@ export default function Registration({afterRegistration}) {
 
     useEffect(() => {
         dispatch(reset());
+        const wallet = ethers.Wallet.createRandom();
+        setFormMnemonic(wallet.mnemonic.phrase);
     }, []);
 
     function isSubmitFormEnabled() {
         return formUsername && formPassword && formMnemonic;
     }
 
-    if (component.status === 'registered' && afterRegistration) {
-        afterRegistration({username: formUsername, password: formPassword, mnemonic: formMnemonic});
+    if (component.status === 'registered') {
+        dispatch(setUser({isLoggedIn: true, username: formUsername, password: formPassword}));
     }
 
     return <div className="App-registration">
+        {component.status === 'registered' && <Redirect to="/catalog"/>}
         <div className="d-flex justify-content-center">
             <div className="col-sm-9 col-md-6">
                 <h3>Registration in FairOS</h3>

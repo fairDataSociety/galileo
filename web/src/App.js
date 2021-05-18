@@ -125,14 +125,7 @@ export default function App() {
                     </Route>
 
                     <Route path="/registration">
-                        <Registration afterRegistration={async ({username, password}) => {
-                            // todo store data, auth, redirect to catalog
-                            // todo or just track status var and execute some code in app?
-                            // if (await fullLogin(username, password)) {
-                            //
-                            // }
-                        }
-                        }/>
+                        <Registration/>
                     </Route>
 
                     <Route path="/">

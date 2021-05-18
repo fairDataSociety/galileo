@@ -25,7 +25,7 @@ export default function Login() {
             {user.isLoggedIn ? <Redirect to={from}/> : ''}
             <div className="col-sm-9 col-md-6">
                 <h3>Login with FairOS credentials</h3>
-                <form onSubmit={ e => {
+                <form onSubmit={e => {
                     e.preventDefault();
                     dispatch(login({username: formUsername, password: formPassword}));
                 }}>
@@ -50,7 +50,7 @@ export default function Login() {
                         <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
                             {user.status === 'login' ? <span className="spinner-border spinner-border-sm" role="status"
                                                              aria-hidden="true"/> : ''}
-                            Submit
+                            &nbsp;Submit
                         </button>
                     </fieldset>
                 </form>

@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import FairOS from "../../service/FairOS";
+import {setActiveItem} from "../catalog/catalogSlice";
 
 const initialState = {
     status: 'idle',
@@ -36,12 +37,22 @@ export const tryLogin = createAsyncThunk(
         const fairOS = new FairOS();
         const username = localStorage.getItem('osm_username');
         const password = localStorage.getItem('osm_username');
+        let activeMap = localStorage.getItem('osm_active');
         if (!username || !password) {
             return false;
         }
 
         const data = await fairOS.login(username, password);
         const isLoggedIn = data.code === 200;
+        if (isLoggedIn && activeMap) {
+            activeMap = JSON.parse(activeMap);
+            await fairOS.podOpen(activeMap.pod, password);
+            await fairOS.kvOpen(activeMap.kv);
+            window._fair_pod = activeMap.pod;
+            window._fair_kv = activeMap.kv;
+            dispatch(setActiveItem(activeMap));
+        }
+
         dispatch(setUser({username, password, isLoggedIn}));
 
         return isLoggedIn;
@@ -112,8 +123,10 @@ export const selectUser = (state) => state.user;
 // Here's an example of conditionally dispatching actions based on current state.
 export const logout = () => (dispatch) => {
     dispatch(fullReset());
+    dispatch(setActiveItem(null));
     localStorage.setItem('osm_username', '');
     localStorage.setItem('osm_password', '');
+    localStorage.setItem('osm_active', '');
 };
 
 export default userSlice.reducer;

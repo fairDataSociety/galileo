@@ -1,32 +1,27 @@
 import {MapContainer} from 'react-leaflet';
 import './App.css';
-import {useEffect, useMemo, useState} from "react";
-import FairOS from "./service/FairOS";
+import {useEffect, useMemo} from "react";
 import Login from "./Login";
 import {useDispatch, useSelector} from "react-redux";
-import {logout, selectUser, setUser,} from './features/user/userSlice';
+import {logout, resetStatus, selectUser, tryLogin,} from './features/user/userSlice';
 import Catalog from "./features/catalog/Catalog";
 import Registration from "./features/registration/Registration";
-import {Route, Switch, useLocation, Redirect} from "react-router-dom";
+import {Link, Redirect, Route, Switch, useLocation} from "react-router-dom";
 import About from "./About";
 import Home from "./Home";
 import Footer from "./Footer";
 import Header from "./Header";
+import {selectCatalog} from "./features/catalog/catalogSlice";
 
 export default function App() {
-    const api = useMemo(() => new FairOS(), []);
+    const catalog = useSelector(selectCatalog);
     const dispatch = useDispatch();
     const location = useLocation();
     const path = location.pathname;
     const displayMap = useMemo(
         () => (
-            <MapContainer
+            catalog.activeItem ? <MapContainer
                 whenCreated={async map => {
-                    // todo get current pod/kv, coords
-                    await api.podOpen('maps','osm');
-                    await api.kvOpen('sw');
-                    window._fair_pod = 'maps';
-                    window._fair_kv = 'sw';
                     const tangramLayer = window.Tangram.leafletLayer({
                         scene: 'scene.yaml',
                         attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
@@ -34,13 +29,18 @@ export default function App() {
 
                     tangramLayer.addTo(map);
                 }}
-                center={[46.947978, 7.440386]}
+                center={catalog.activeItem.coordinates}
                 zoom={15}
                 scrollWheelZoom={false}>
-            </MapContainer>
+            </MapContainer> : <p>Please, load map from <Link to="/catalog">catalog</Link></p>
         ),
-        [],
+        [catalog.activeItem],
     );
+
+    useEffect(_ => {
+        dispatch(resetStatus());
+        dispatch(tryLogin());
+    }, []);
 
     // async function fullLogin(username, password, pod, kv) {
     //     setUserStatusText('');
@@ -74,28 +74,6 @@ export default function App() {
     //     return !errorItem;
     // }
 
-    // function resetCredentials() {
-    //     dispatch(setUser({username: '', password: '', pod: '', kv: '', isLoggedIn: false}));
-    //     localStorage.setItem('osm_username', '');
-    //     localStorage.setItem('osm_password', '');
-    //     localStorage.setItem('osm_pod', '');
-    //     localStorage.setItem('osm_kv', '');
-    // }
-
-    // useEffect(() => {
-    //     console.log('useEffect map', map);
-    //     if (!map || map._layers.length > 0) {
-    //         return;
-    //     }
-    //
-    //     const tangramLayer = window.Tangram.leafletLayer({
-    //         scene: 'scene.yaml',
-    //         attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
-    //     });
-    //
-    //     tangramLayer.addTo(map);
-    // }, [map]);
-
     function PrivateRoute({children, ...rest}) {
         const user = useSelector(selectUser);
 
@@ -122,9 +100,6 @@ export default function App() {
         <>
             <Header onLogout={_ => {
                 dispatch(logout());
-                //resetCredentials();
-                // resetForm();
-                // setUserStatus(STATUS_NOT_AUTH);
             }
             }/>
 
@@ -134,8 +109,10 @@ export default function App() {
                         <Login/>
                     </Route>
 
-
                     <PrivateRoute path="/map">
+                        {catalog.activeItem ?
+                            <h3>Loaded map: {catalog.activeItem.title}. <Link to="/catalog">Choose another</Link>
+                            </h3> : ''}
                         {displayMap}
                     </PrivateRoute>
 

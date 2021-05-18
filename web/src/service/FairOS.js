@@ -50,6 +50,13 @@ export default class FairOS {
         return this.api('POST', `${this.apiUrl}pod/open`, formData);
     }
 
+    podReceive(reference) {
+        // let formData = new FormData();
+        // formData.append('sharing_ref', reference);
+        // formData.append('pod_name', "7777");
+        return this.api('GET', `${this.apiUrl}pod/receive?sharing_ref=${reference}`);
+    }
+
     kvOpen(name) {
         let formData = new FormData();
         formData.append('table_name', name);

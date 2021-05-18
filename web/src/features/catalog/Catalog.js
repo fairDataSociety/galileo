@@ -1,10 +1,16 @@
 import {useDispatch, useSelector} from "react-redux";
-import {getListAsync, selectCatalog, setList} from "./catalogSlice";
-import {useEffect} from "react";
+import {downloadAndSwitch, getListAsync, selectCatalog, setList} from "./catalogSlice";
+import {useEffect, useState} from "react";
+import {selectUser} from "../user/userSlice";
+import {Link} from "react-router-dom";
 
 export default function Catalog() {
     const catalog = useSelector(selectCatalog);
     const dispatch = useDispatch();
+    const user = useSelector(selectUser);
+    const actionsDisabled = catalog.status !== 'idle';
+
+    const [currentItem, setCurrentItem] = useState({});
 
     useEffect(() => {
         dispatch(setList([]));
@@ -12,6 +18,11 @@ export default function Catalog() {
     }, []);
 
     return <div className="App-catalog">
+        {catalog.activeItem &&
+        <div className="alert alert-success" role="alert">
+            Active map: "{catalog.activeItem.title}". <Link to="/map">Go to map to view</Link>
+        </div>}
+
         <table className="table">
             <thead>
             <tr>
@@ -24,18 +35,29 @@ export default function Catalog() {
             {catalog.list.map(item => <tr key={item.id}>
                 <td>{item.title}</td>
                 <td>
-                    <button className="btn btn-success btn-sm" onClick={_ => {
-                        // todo after login open some pod with info about available maps
-                        // todo show somewhere control page for countries
-                        // todo if user not registered ask if he wants to register or login (modal window with options)
-                        // todo if user registered check if this pod added to his pods
-                        if (window.confirm('Add this map to your pod?')) {
-                            // todo implement
-                            console.log(item);
-                        }
-                    }}>
+                    {user.isLoggedIn &&
+                    <button className="btn btn-success btn-sm"
+                            disabled={catalog.activeItem?.id === item.id || actionsDisabled}
+                            onClick={_ => {
+                                if (window.confirm('Download map to your account and switch to it?')) {
+                                    setCurrentItem(item);
+                                    dispatch(downloadAndSwitch(item))
+                                }
+                            }}>
+                        {(catalog.status !== 'idle' && currentItem.id === item.id) ?
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"/> : ''}
+                        &nbsp;Switch
+                    </button>}
+
+                    {!user.isLoggedIn &&
+                    <button className="btn btn-success btn-sm"
+                            disabled={actionsDisabled}
+                            onClick={_ => {
+                                alert('To view the map you need to login or register');
+                                // todo redirect to login or show modal with login/auth
+                            }}>
                         View
-                    </button>
+                    </button>}
                 </td>
             </tr>)}
 

@@ -4,6 +4,7 @@ import FairOS from "../../service/FairOS";
 
 const initialState = {
     status: 'idle',
+    statusText: '',
     activeItem: null,
     list: []
 };
@@ -39,8 +40,58 @@ export const downloadAndSwitch = createAsyncThunk(
 
         window._fair_pod = pod;
         window._fair_kv = kv;
-        localStorage.setItem('osm_active', JSON.stringify(item))
+        localStorage.setItem('osm_active', JSON.stringify(item));
         dispatch(setActiveItem(item));
+
+        return true;
+    }
+);
+
+export const addSharedAndSwitch = createAsyncThunk(
+    'catalog/addSharedAndSwitch',
+    async (data, {dispatch, getState}) => {
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        const {reference, title, coordinates} = data;
+        const coordinatesPrepared = coordinates.split(',');
+        if (coordinatesPrepared.length !== 2) {
+            throw new Error("Incorrect coordinates format");
+        }
+
+        const user = getState().user;
+        const api = new FairOS();
+        dispatch(setStatus('pod_receive_info'));
+        const info = await api.podReceiveInfo(reference);
+        const pod = info?.pod_name;
+        if (!pod) {
+            throw new Error("Pod information not found");
+        }
+
+        await api.podOpen(pod, user.password);
+        const kvs = await api.kvLs();
+        if (!kvs || !kvs.Tables || !kvs.Tables.length) {
+            throw new Error("Key-value not found");
+        }
+
+        const kv = kvs.Tables[0].table_name;
+        const obj = {id: getRandomInt(10000, 100000), title, coordinates: coordinatesPrepared, pod, kv, reference};
+        dispatch(downloadAndSwitch(obj));
+
+        let customItems = localStorage.getItem('osm_custom_maps');
+        console.log(customItems);
+        if (customItems) {
+            customItems = JSON.parse(customItems);
+            customItems.push(obj);
+        } else {
+            customItems = [obj];
+        }
+
+        localStorage.setItem('osm_custom_maps', JSON.stringify(customItems));
+        dispatch(getListAsync());
 
         return true;
     }
@@ -77,9 +128,25 @@ export const catalogSlice = createSlice({
             })
             .addCase(downloadAndSwitch.fulfilled, (state, action) => {
                 state.status = 'idle';
+            })
+            .addCase(addSharedAndSwitch.rejected, (state, action) => {
+                state.status = 'error';
+                state.statusText = action.error.message;
             });
     },
 });
+
+export const deleteLocal = (id) => (dispatch) => {
+    let items = localStorage.getItem('osm_custom_maps');
+    if (!items) {
+        return;
+    }
+
+    items = JSON.parse(items);
+    items = items.filter(item => item.id !== id);
+    localStorage.setItem('osm_custom_maps', JSON.stringify(items));
+    dispatch(getListAsync());
+};
 
 export const {setList, setStatus, setActiveItem} = catalogSlice.actions;
 export const selectCatalog = (state) => state.catalog;

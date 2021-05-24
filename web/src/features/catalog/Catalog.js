@@ -1,16 +1,30 @@
 import {useDispatch, useSelector} from "react-redux";
-import {downloadAndSwitch, getListAsync, selectCatalog, setList} from "./catalogSlice";
+import {addSharedAndSwitch, deleteLocal, downloadAndSwitch, getListAsync, selectCatalog, setList} from "./catalogSlice";
 import {useEffect, useState} from "react";
-import {selectUser} from "../user/userSlice";
+import {login, selectUser} from "../user/userSlice";
 import {Link} from "react-router-dom";
+import {Button, Modal} from "react-bootstrap";
 
 export default function Catalog() {
+    const [showUpload, setShowUpload] = useState(false);
+    const [showAddMap, setShowAddMap] = useState(false);
+    const [mapReference, setMapReference] = useState('');
+    const [mapTitle, setMapTitle] = useState('');
+    const [mapCoordinates, setMapCoordinates] = useState('');
+    const [currentItem, setCurrentItem] = useState({});
+
     const catalog = useSelector(selectCatalog);
     const dispatch = useDispatch();
     const user = useSelector(selectUser);
-    const actionsDisabled = catalog.status !== 'idle';
+    const actionsDisabled = !['idle', 'error'].includes(catalog.status);
 
-    const [currentItem, setCurrentItem] = useState({});
+    const isAddMapDisabled = () => {
+        return !mapReference ||
+            mapReference.length !== 128 ||
+            !mapTitle ||
+            !mapCoordinates ||
+            mapCoordinates.split(',').length !== 2;
+    }
 
     useEffect(() => {
         dispatch(setList([]));
@@ -18,9 +32,90 @@ export default function Catalog() {
     }, []);
 
     return <div className="App-catalog">
+        <Modal show={showUpload} onHide={_ => setShowUpload(false)}>
+            <Modal.Header closeButton>
+                <Modal.Title>Upload map</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Please, follow "How to create and share your own map?" instruction: <a
+                href="https://github.com/fairDataSociety/osm-example">https://github.com/fairDataSociety/osm-example</a>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={_ => setShowUpload(false)}>
+                    Close
+                </Button>
+            </Modal.Footer>
+        </Modal>
+
+        <Modal show={showAddMap} onHide={_ => setShowAddMap(false)} onShow={_ => {
+            setMapReference('');
+            setMapTitle('');
+            setMapCoordinates('');
+        }}>
+            <Modal.Header closeButton>
+                <Modal.Title>Add map</Modal.Title>
+            </Modal.Header>
+            <form onSubmit={e => {
+                e.preventDefault();
+                dispatch(addSharedAndSwitch({reference: mapReference, title: mapTitle, coordinates: mapCoordinates}));
+                setShowAddMap(false);
+            }}>
+                <Modal.Body>
+                    <fieldset>
+                        <div className="mb-3">
+                            <label className="form-label">FairOS map reference</label>
+                            <input type="text" className="form-control"
+                                   placeholder="07bcccde50709ba2b444b9dd20607dcee7f7fd8a8ada9287652217448f3228d3d72f0fdc58ae2e463f1373e92ea6c9ad09903ab408adf0a2f0149b11b178146c"
+                                   onChange={e => setMapReference(e.target.value)}
+                                   value={mapReference}/>
+                        </div>
+
+                        <div className="mb-3">
+                            <label className="form-label">Title</label>
+                            <input type="text" className="form-control"
+                                   placeholder="Switzerland"
+                                   onChange={e => setMapTitle(e.target.value)}
+                                   value={mapTitle}/>
+                        </div>
+
+                        <div className="mb-3">
+                            <label className="form-label">Initial coordinates</label>
+                            <input type="text" className="form-control"
+                                   placeholder="46.947978, 7.440386"
+                                   onChange={e => setMapCoordinates(e.target.value)}
+                                   value={mapCoordinates}/>
+                        </div>
+                    </fieldset>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={_ => setShowAddMap(false)}>
+                        Close
+                    </Button>
+
+                    <button type="submit" className="btn btn-primary"
+                            disabled={isAddMapDisabled()}>
+                        {user.status === 'login' ? <span className="spinner-border spinner-border-sm" role="status"
+                                                         aria-hidden="true"/> : ''}
+                        &nbsp;Submit
+                    </button>
+                </Modal.Footer>
+            </form>
+        </Modal>
+
         {catalog.activeItem &&
         <div className="alert alert-success" role="alert">
             Active map: "{catalog.activeItem.title}". <Link to="/map">Go to map to view</Link>
+        </div>}
+
+        {(catalog.status === 'error' && catalog.statusText) &&
+        <div className="alert alert-danger" role="alert">
+            {catalog.statusText}
+        </div>}
+
+        {user.isLoggedIn && <div className="mb-3">
+            <button onClick={_ => setShowUpload(true)} className="btn btn-outline-primary">Upload map</button>
+            <button onClick={_ => setShowAddMap(true)} className="btn btn-outline-primary ml-1">Add map by reference
+            </button>
         </div>}
 
         <table className="table">
@@ -47,6 +142,16 @@ export default function Catalog() {
                         {(catalog.status !== 'idle' && currentItem.id === item.id) ?
                             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"/> : ''}
                         &nbsp;Switch
+                    </button>}
+
+                    {(user.isLoggedIn && item.isCustom) &&
+                    <button className="btn btn-danger btn-sm ml-1"
+                            onClick={_ => {
+                                if (window.confirm('Really delete?')) {
+                                    dispatch(deleteLocal(item.id));
+                                }
+                            }}>
+                        Delete
                     </button>}
 
                     {!user.isLoggedIn &&

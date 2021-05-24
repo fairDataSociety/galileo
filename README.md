@@ -10,22 +10,33 @@ OSM Example
 
 4) Convert .json files to .csv file with script ```/scripts/json-files-to-csv.js```
 
-5) Start ```dfs-cli```. Create new ```user```, ```pod```, ```kv```. 
+5) Start ```dfs-cli```. Create new ```user```, ```pod```, ```kv```. Preferred name for pod ```[country]_[author]_map```, preferred name for kv ```map```
 
-6) Upload .csv to creates key-value storage ```kv loadcsv [[your_kv]] /Users/username/Downloads/map_sw.csv```
+6) Upload .csv to creates key-value storage ```kv loadcsv [[your_kv]] /Users/[[username]]/Downloads/map_sw.csv```
 
-6) Go to ```/web/``` folder, run ```yarn```, ```yarn start```
+7) Run ```pod share [[pod_name]]``` and receive reference like that ```2ce7f6aa5995a476c2ee9febd771b832dcc2f9e679ec5d737e81603e7728df4f515b1bd4eed08001a5f0be3b031d184509e92f2af7d34571faf4208fadf3ad58```
 
-7) Sign in with your credentials on web project
+8) Fill info about maps in ```web/src/features/catalog/catalogAPI.js```
+
+9) Go to ```/web/``` folder, run ```yarn```, ```yarn start```
+
+10) Sign in with your credentials on web project
 
 ### How to create and share your own map?
 
 
 ### Other
 
-Tile files example for Switzerland: https://testeron.pro/osm/tiles_sw.zip
+#### Tile files example:
 
-Csv tiles example for Switzerland: https://testeron.pro/osm/map_sw.csv.zip
+Switzerland: https://testeron.pro/osm/tiles_sw.zip
+
+Czech Republic: https://testeron.pro/osm/tiles_cz.zip
+
+#### Csv tiles example: 
+Switzerland: https://testeron.pro/osm/map_sw.csv.zip
+
+Czech Republic: https://testeron.pro/osm/map_cz.csv.zip
 
 Download tiles: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813
 

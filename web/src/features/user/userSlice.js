@@ -36,7 +36,7 @@ export const tryLogin = createAsyncThunk(
     async (params, {dispatch}) => {
         const fairOS = new FairOS();
         const username = localStorage.getItem('osm_username');
-        const password = localStorage.getItem('osm_username');
+        const password = localStorage.getItem('osm_password');
         let activeMap = localStorage.getItem('osm_active');
         if (!username || !password) {
             return false;

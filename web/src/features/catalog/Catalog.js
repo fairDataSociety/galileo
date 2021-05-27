@@ -38,6 +38,7 @@ export default function Catalog() {
             </Modal.Header>
             <Modal.Body>
                 Please, follow "How to create and share your own map?" instruction: <a
+                target="_blank"
                 href="https://github.com/fairDataSociety/osm-example">https://github.com/fairDataSociety/osm-example</a>
             </Modal.Body>
             <Modal.Footer>

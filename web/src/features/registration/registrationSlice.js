@@ -24,6 +24,9 @@ export const registrationAsync = createAsyncThunk(
             throw new Error(response.message ? response.message : 'Server response error');
         }
 
+        localStorage.setItem('osm_username', username);
+        localStorage.setItem('osm_password', password);
+
         return response;
     }
 );

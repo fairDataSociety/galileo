@@ -13,7 +13,7 @@ export default function Login() {
 
     useEffect(() => {
         dispatch(resetStatus());
-        dispatch(tryLogin());
+        // dispatch(tryLogin());
     }, []);
 
     function isSubmitFormEnabled() {

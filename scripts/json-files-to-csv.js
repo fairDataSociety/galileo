@@ -57,9 +57,9 @@ async function run() {
         fs.appendFileSync(outFile, `${key},"${value}"\r\n`);
     }
 
-    const index = makeIndexJson(files);
+    const index = JSON.stringify(makeIndexJson(files));
     let value = replaceAll(index, '"', '""');
-    fs.appendFileSync(outFile, `index,"${value}"\r\n`);
+    fs.appendFileSync(outFile, `map_index,"${value}"\r\n`);
 }
 
 run();

@@ -42,38 +42,6 @@ export default function App() {
         dispatch(tryLogin());
     }, []);
 
-    // async function fullLogin(username, password, pod, kv) {
-    //     setUserStatusText('');
-    //     setUserStatus(STATUS_CHECKING);
-    //     let errorItem = null;
-    //     try {
-    //         const loginData = await api.login(username, password);
-    //         const podData = await api.podOpen(pod, password);
-    //         const kvData = await api.kvOpen(kv);
-    //
-    //         errorItem = [
-    //             {item: loginData, text: 'Incorrect login or password'},
-    //             {item: podData, text: 'Can\'t open pod'},
-    //             {item: kvData, text: 'Can\'t open kv'}
-    //         ].find(data => data.item.code !== 200);
-    //
-    //         if (errorItem) {
-    //             setUserStatus(STATUS_NOT_AUTH);
-    //             setUserStatusText(errorItem.text);
-    //         } else {
-    //             window._fair_kv = kv;
-    //             window._fair_pod = pod;
-    //             dispatch(setUser({username, password, pod, kv, isLoggedIn: true}));
-    //             setUserStatus(STATUS_AUTH_SUCCESS);
-    //         }
-    //     } catch (e) {
-    //         setUserStatus(STATUS_ERROR);
-    //         setUserStatusText(`${e.message}. Please, check your connection and services availability.`);
-    //     }
-    //
-    //     return !errorItem;
-    // }
-
     function PrivateRoute({children, ...rest}) {
         const user = useSelector(selectUser);
 

@@ -11261,7 +11261,7 @@ table@^6.0.4:
 
 "tangram@https://github.com/IgorShadurin/tangram.git":
   version "0.21.1"
-  resolved "https://github.com/IgorShadurin/tangram.git#44a449276425b7e4415f639173d45085a46de683"
+  resolved "https://github.com/IgorShadurin/tangram.git#e852060228bcc1eceed18b97317b4a7f95c72c0d"
   dependencies:
     "@mapbox/vector-tile" "1.3.0"
     csscolorparser "1.0.3"

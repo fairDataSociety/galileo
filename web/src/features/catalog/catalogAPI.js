@@ -17,18 +17,18 @@ export function fetchCatalogList() {
                     {
                         id: 1,
                         title: "Switzerland [test]",
-                        pod: "maps",
-                        kv: "sw",
+                        pod: "map_switzerland_sdncer",
+                        kv: "map",
                         coordinates: [46.947978, 7.440386],
-                        reference: "07bcccde50709ba2b444b9dd20607dcee7f7fd8a8ada9287652217448f3228d3d72f0fdc58ae2e463f1373e92ea6c9ad09903ab408adf0a2f0149b11b178146c"
+                        reference: "eebc7bf689f76c9889fc1fd3f6b1c448168b121493359871c13624a2459ab583775dee8b7665eb3ee90ebabbad21026622bc5334870809738610c86beb1c5532"
                     },
                     {
                         id: 2,
                         title: "Czech Republic [test]",
-                        pod: "czech_shadurin_map",
+                        pod: "map_czech_test",
                         kv: "map",
                         coordinates: [50.080310, 14.428974],
-                        reference: "3fac0b90f8ff8369f38bc0fd5f6ab3cb9e7acf21275afd779d85f8522dda22509a9daeb74f2048dc25fa95b1ebceb783fbba410ed501e6746e7f9b6002df81c5"
+                        reference: "e6fd12bd7aafe87cb6570050ed6103727c7909818922cf8dbb49c4d5ac2a3f4dcc8e86a860bf1a00e8e6e9a2e1383a2fc8ae5a8e441184a2ebf194dbdc0d1f72"
                     },
                     ...customMaps
                 ]

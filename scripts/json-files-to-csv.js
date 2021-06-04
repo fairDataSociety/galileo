@@ -30,8 +30,10 @@ function makeIndexJson(files) {
 }
 
 async function run() {
-    const findDirectory = '/Users/sdancer/Downloads/tiles_sw/';
-    const outFile = '/Users/sdancer/Downloads/map_sw.csv';
+    // const findDirectory = '/Users/sdancer/Downloads/tiles_sw/';
+    // const outFile = '/Users/sdancer/Downloads/map_sw.csv';
+    const findDirectory = '/Users/sdancer/Downloads/tiles_cz/';
+    const outFile = '/Users/sdancer/Downloads/map_cz.csv';
 
     const files = globby.sync([`${findDirectory}**/*.json`])
         .map(item => {

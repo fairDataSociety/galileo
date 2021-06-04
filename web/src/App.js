@@ -20,7 +20,7 @@ export default function App() {
     const path = location.pathname;
     const displayMap = useMemo(
         () => (
-            catalog.activeItem ? <MapContainer
+            <MapContainer
                 whenCreated={async map => {
                     const tangramLayer = window.Tangram.leafletLayer({
                         scene: 'scene.yaml',
@@ -29,10 +29,10 @@ export default function App() {
 
                     tangramLayer.addTo(map);
                 }}
-                center={catalog.activeItem.coordinates}
+                center={[46.948919, 7.440979]}
                 zoom={15}
                 scrollWheelZoom={false}>
-            </MapContainer> : <p>Please, load map from <Link to="/catalog">catalog</Link></p>
+            </MapContainer>
         ),
         [catalog.activeItem],
     );

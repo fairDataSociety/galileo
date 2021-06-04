@@ -25,6 +25,13 @@ export const login = createAsyncThunk(
         localStorage.setItem('osm_username', username);
         localStorage.setItem('osm_password', password);
         const isLoggedIn = data.code === 200;
+        if (isLoggedIn) {
+            const index = await fairOS.getMapsIndex(password);
+            localStorage.setItem('osm_index', JSON.stringify(index));
+        } else {
+            localStorage.setItem('osm_index', '');
+        }
+
         dispatch(setUser({username, password, isLoggedIn}));
 
         return isLoggedIn;
@@ -37,21 +44,25 @@ export const tryLogin = createAsyncThunk(
         const fairOS = new FairOS();
         const username = localStorage.getItem('osm_username');
         const password = localStorage.getItem('osm_password');
-        let activeMap = localStorage.getItem('osm_active');
+        // let activeMap = localStorage.getItem('osm_active');
         if (!username || !password) {
             return false;
         }
 
         const data = await fairOS.login(username, password);
         const isLoggedIn = data.code === 200;
-        if (isLoggedIn && activeMap) {
-            activeMap = JSON.parse(activeMap);
-            await fairOS.podOpen(activeMap.pod, password);
-            await fairOS.kvOpen(activeMap.kv);
-            window._fair_pod = activeMap.pod;
-            window._fair_kv = activeMap.kv;
-            dispatch(setActiveItem(activeMap));
+        if (isLoggedIn) {
+            await fairOS.openAll(password);
         }
+
+        const index = localStorage.getItem('osm_index');
+        let parsed = {};
+        if (index) {
+            parsed = JSON.parse(index);
+            // parsed.urlNotFound = 'https://sometile.com';
+        }
+
+        window._fair_data = parsed;
 
         dispatch(setUser({username, password, isLoggedIn}));
 
@@ -124,9 +135,7 @@ export const selectUser = (state) => state.user;
 export const logout = () => (dispatch) => {
     dispatch(fullReset());
     dispatch(setActiveItem(null));
-    localStorage.setItem('osm_username', '');
-    localStorage.setItem('osm_password', '');
-    localStorage.setItem('osm_active', '');
+    localStorage.clear();
 };
 
 export default userSlice.reducer;

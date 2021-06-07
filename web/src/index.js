@@ -5,7 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {store} from './app/store';
 import './index.css';
-import 'tangram/dist/tangram.min';
+// import 'tangram/dist/tangram.min';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './themes/reveal/css/style.css';
 import {BrowserRouter as Router} from "react-router-dom";

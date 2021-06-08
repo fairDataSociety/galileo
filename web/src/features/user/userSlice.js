@@ -1,6 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import FairOS from "../../service/FairOS";
 import {setActiveItem} from "../catalog/catalogSlice";
+import {clearOsmIndex, getOsmIndex, saveOsmIndex, setWindowIndex} from "../../service/LocalData";
 
 const initialState = {
     status: 'idle',
@@ -27,9 +28,9 @@ export const login = createAsyncThunk(
         const isLoggedIn = data.code === 200;
         if (isLoggedIn) {
             const index = await fairOS.getMapsIndex(password);
-            localStorage.setItem('osm_index', JSON.stringify(index));
+            saveOsmIndex(index);
         } else {
-            localStorage.setItem('osm_index', '');
+            clearOsmIndex();
         }
 
         dispatch(setUser({username, password, isLoggedIn}));
@@ -55,14 +56,7 @@ export const tryLogin = createAsyncThunk(
             await fairOS.openAll(password);
         }
 
-        const index = localStorage.getItem('osm_index');
-        let parsed = {};
-        if (index) {
-            parsed = JSON.parse(index);
-            // parsed.urlNotFound = 'https://sometile.com';
-        }
-
-        window._fair_data = parsed;
+        setWindowIndex(getOsmIndex());
 
         dispatch(setUser({username, password, isLoggedIn}));
 

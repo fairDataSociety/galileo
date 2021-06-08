@@ -1,5 +1,13 @@
 import {useDispatch, useSelector} from "react-redux";
-import {addSharedAndSwitch, deleteLocal, downloadAndSwitch, getListAsync, selectCatalog, setList} from "./catalogSlice";
+import {
+    addRemoveMap,
+    addSharedAndSwitch,
+    deleteLocal,
+    downloadAndSwitch,
+    getListAsync,
+    selectCatalog,
+    setList
+} from "./catalogSlice";
 import {useEffect, useState} from "react";
 import {login, selectUser} from "../user/userSlice";
 import {Link} from "react-router-dom";
@@ -131,19 +139,33 @@ export default function Catalog() {
             {catalog.list.map(item => <tr key={item.id}>
                 <td>{item.title}</td>
                 <td>
+                    {/*{user.isLoggedIn &&*/}
+                    {/*<button className="btn btn-success btn-sm"*/}
+                    {/*        disabled={catalog.activeItem?.id === item.id || actionsDisabled}*/}
+                    {/*        onClick={_ => {*/}
+                    {/*            if (window.confirm('Download map to your account and switch to it?')) {*/}
+                    {/*                setCurrentItem(item);*/}
+                    {/*                dispatch(downloadAndSwitch(item))*/}
+                    {/*            }*/}
+                    {/*        }}>*/}
+                    {/*    {(catalog.status !== 'idle' && currentItem.id === item.id) ?*/}
+                    {/*        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"/> : ''}*/}
+                    {/*    &nbsp;Switch*/}
+                    {/*</button>}*/}
                     {user.isLoggedIn &&
-                    <button className="btn btn-success btn-sm"
-                            disabled={catalog.activeItem?.id === item.id || actionsDisabled}
-                            onClick={_ => {
-                                if (window.confirm('Download map to your account and switch to it?')) {
-                                    setCurrentItem(item);
-                                    dispatch(downloadAndSwitch(item))
-                                }
-                            }}>
-                        {(catalog.status !== 'idle' && currentItem.id === item.id) ?
-                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"/> : ''}
-                        &nbsp;Switch
-                    </button>}
+                    <div className="custom-control custom-checkbox" onClick={_ => {
+                        console.log('clicked', catalog.status);
+                        dispatch(addRemoveMap(item))
+                    }
+                    }>
+                        <input type="checkbox" className="custom-control-input"
+                               checked={item.checked}
+                               onChange={_ => {
+                               }} disabled={catalog.status === 'adding'}/>
+                        <label className="custom-control-label">
+                            Display on the map
+                        </label>
+                    </div>}
 
                     {(user.isLoggedIn && item.isCustom) &&
                     <button className="btn btn-danger btn-sm ml-1"
@@ -155,15 +177,18 @@ export default function Catalog() {
                         Delete
                     </button>}
 
+                    {/*{!user.isLoggedIn &&*/}
+                    {/*<button className="btn btn-success btn-sm"*/}
+                    {/*        disabled={actionsDisabled}*/}
+                    {/*        onClick={_ => {*/}
+                    {/*            alert('To view the map you need to login or register');*/}
+                    {/*            // todo redirect to login or show modal with login/auth*/}
+                    {/*        }}>*/}
+                    {/*    View*/}
+                    {/*</button>}*/}
+
                     {!user.isLoggedIn &&
-                    <button className="btn btn-success btn-sm"
-                            disabled={actionsDisabled}
-                            onClick={_ => {
-                                alert('To view the map you need to login or register');
-                                // todo redirect to login or show modal with login/auth
-                            }}>
-                        View
-                    </button>}
+                    <p>...</p>}
                 </td>
             </tr>)}
 

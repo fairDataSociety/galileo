@@ -1,6 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {fetchCatalogList} from "./catalogAPI";
 import FairOS from "../../service/FairOS";
+import {addPodToIndex, getOsmIndex, removePodFromOsmIndex, setWindowIndex} from "../../service/LocalData";
 
 const initialState = {
     status: 'idle',
@@ -18,34 +19,74 @@ export const getListAsync = createAsyncThunk(
     }
 );
 
-export const downloadAndSwitch = createAsyncThunk(
-    'catalog/downloadAndSwitch',
-    async (item, {dispatch, getState}) => {
-        const {pod, kv, reference} = item;
+export const addRemoveMap = createAsyncThunk(
+    'catalog/addRemoveMap',
+    async (podObject, {dispatch, getState}) => {
+        dispatch(setStatus('adding'));
+        console.log(podObject);
+        const {pod} = podObject;
         const user = getState().user;
         const api = new FairOS();
-        dispatch(setStatus('pod_receive'));
-        await api.podReceive(reference);
-        dispatch(setStatus('pod_open'));
-        let response = await api.podOpen(pod, user.password);
-        if (response.code !== 200) {
-            throw new Error("Can't open pod");
+        let isAdd = false;
+        let list = [...getState().catalog.list].map(oldItem => {
+            const item = {...oldItem};
+            if (item.pod === pod) {
+                item.checked = !item.checked;
+                isAdd = item.checked;
+            }
+
+            return item;
+        });
+        console.log('isAdd', isAdd);
+        if (isAdd) {
+            // dispatch(setStatus('pod_open'));
+            // await api.podOpen(pod, user.password);
+            // dispatch(setStatus('kv_open'));
+            // await api.kvOpen(kv);
+            const podIndex = await api.getPodIndex(pod, user.password);
+            if (podIndex) {
+                addPodToIndex(podIndex);
+                setWindowIndex(getOsmIndex());
+            }
+        } else {
+            removePodFromOsmIndex(pod);
+            setWindowIndex(getOsmIndex());
+
+            // todo close pod
         }
 
-        dispatch(setStatus('kv_open'));
-        await api.kvOpen(kv);
-        if (response.code !== 200) {
-            throw new Error("Can't open key value storage");
-        }
-
-        window._fair_pod = pod;
-        window._fair_kv = kv;
-        localStorage.setItem('osm_active', JSON.stringify(item));
-        dispatch(setActiveItem(item));
-
-        return true;
+        return list;
     }
 );
+
+// export const downloadAndSwitch = createAsyncThunk(
+//     'catalog/downloadAndSwitch',
+//     async (item, {dispatch, getState}) => {
+//         const {pod, kv, reference} = item;
+//         const user = getState().user;
+//         const api = new FairOS();
+//         dispatch(setStatus('pod_receive'));
+//         await api.podReceive(reference);
+//         dispatch(setStatus('pod_open'));
+//         let response = await api.podOpen(pod, user.password);
+//         if (response.code !== 200) {
+//             throw new Error("Can't open pod");
+//         }
+//
+//         dispatch(setStatus('kv_open'));
+//         await api.kvOpen(kv);
+//         if (response.code !== 200) {
+//             throw new Error("Can't open key value storage");
+//         }
+//
+//         window._fair_pod = pod;
+//         window._fair_kv = kv;
+//         localStorage.setItem('osm_active', JSON.stringify(item));
+//         dispatch(setActiveItem(item));
+//
+//         return true;
+//     }
+// );
 
 export const addSharedAndSwitch = createAsyncThunk(
     'catalog/addSharedAndSwitch',
@@ -79,7 +120,7 @@ export const addSharedAndSwitch = createAsyncThunk(
 
         const kv = kvs.Tables[0].table_name;
         const obj = {id: getRandomInt(10000, 100000), title, coordinates: coordinatesPrepared, pod, kv, reference};
-        dispatch(downloadAndSwitch(obj));
+        // dispatch(downloadAndSwitch(obj));
 
         let customItems = localStorage.getItem('osm_custom_maps');
         console.log(customItems);
@@ -123,12 +164,22 @@ export const catalogSlice = createSlice({
                 state.status = 'idle';
                 state.list = action.payload;
             })
-            .addCase(downloadAndSwitch.rejected, (state, action) => {
-                state.status = 'idle';
+            // .addCase(addRemoveMap.pending, (state) => {
+            //     state.status = 'adding';
+            // })
+            .addCase(addRemoveMap.rejected, (state, action) => {
+                console.log('addRemoveMap rejected', action.error)
             })
-            .addCase(downloadAndSwitch.fulfilled, (state, action) => {
+            .addCase(addRemoveMap.fulfilled, (state, action) => {
                 state.status = 'idle';
+                state.list = action.payload;
             })
+            // .addCase(downloadAndSwitch.rejected, (state, action) => {
+            //     state.status = 'idle';
+            // })
+            // .addCase(downloadAndSwitch.fulfilled, (state, action) => {
+            //     state.status = 'idle';
+            // })
             .addCase(addSharedAndSwitch.rejected, (state, action) => {
                 state.status = 'error';
                 state.statusText = action.error.message;

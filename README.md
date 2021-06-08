@@ -4,7 +4,7 @@ OSM Example
 
 1) Follow "How to create and share your own map?" instruction
 
-2) Go to ```/web/``` folder, run ```yarn```, ```yarn start```
+2) Go to ```/web/``` folder, copy ```.example.env``` => ```.env```, ```public/example.scene.yaml``` => ```public/scene.yaml```, run ```yarn```, ```yarn start```
 
 3) Sign in with your FairOS credentials on web project
 

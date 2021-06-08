@@ -95,7 +95,6 @@ styles:
 sources:
     tilezen:
         type: GeoJSON
-        #url: https://fairos.testeron.pro/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}
         url: http://localhost:9090/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}
         tile_size: 512
         max_zoom: 15

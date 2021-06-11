@@ -1,0 +1,11 @@
+version: '3'
+services:
+  app:
+    restart: always
+    build: .
+    volumes:
+      - '.:/usr/src/osm_bee_app'
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development

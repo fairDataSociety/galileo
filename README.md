@@ -1,5 +1,3 @@
-OSM Example
-
 ### How to test map with local FairOS?
 
 1) Follow "How to create and share your own map?" instruction

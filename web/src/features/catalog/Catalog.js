@@ -47,7 +47,7 @@ export default function Catalog() {
             <Modal.Body>
                 Please, follow "How to create and share your own map?" instruction: <a
                 target="_blank"
-                href="https://github.com/fairDataSociety/osm-example">https://github.com/fairDataSociety/osm-example</a>
+                href="https://github.com/fairDataSociety/osm-example">https://github.com/fairDataSociety/fairMaps</a>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={_ => setShowUpload(false)}>
@@ -121,13 +121,19 @@ export default function Catalog() {
             {catalog.statusText}
         </div>}
 
+        <h3>Maps catalog</h3>
+        <p>In maps catalog page you can choose which countries should be displayed on the map.</p>
+
+        {!user.isLoggedIn &&
+        <p>Please <Link to="/login">login</Link> or <Link to="/registration">register</Link> to use this page.</p>}
+
         {user.isLoggedIn && <div className="mb-3">
             <button onClick={_ => setShowUpload(true)} className="btn btn-outline-primary">Upload map</button>
             <button onClick={_ => setShowAddMap(true)} className="btn btn-outline-primary ml-1">Add map by reference
             </button>
         </div>}
 
-        <table className="table">
+        {user.isLoggedIn && <table className="table">
             <thead>
             <tr>
                 <th scope="col">Country</th>
@@ -197,6 +203,6 @@ export default function Catalog() {
             </tr>}
 
             </tbody>
-        </table>
+        </table>}
     </div>;
 }

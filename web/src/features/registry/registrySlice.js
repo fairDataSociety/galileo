@@ -1,8 +1,15 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {fetchCatalogList} from "./catalogAPI";
+import {fetchRegistriesList} from "./registryAPI";
 import FairOS from "../../service/FairOS";
-import {addPodToIndex, getOsmIndex, removePodFromOsmIndex, setWindowIndex} from "../../service/LocalData";
+import {
+    addPodToIndex,
+    getOsmIndex,
+    removePodFromOsmIndex,
+    removeRegistry,
+    setWindowIndex
+} from "../../service/LocalData";
 import {getRandomInt} from "../../service/Utils";
+import * as local from "../../service/LocalData";
 
 const initialState = {
     status: 'idle',
@@ -12,16 +19,16 @@ const initialState = {
 };
 
 export const getListAsync = createAsyncThunk(
-    'catalog/getListAsync',
+    'registry/getListAsync',
     async () => {
-        const response = await fetchCatalogList();
+        const response = await fetchRegistriesList();
         // The value we return becomes the `fulfilled` action payload
         return response.data;
     }
 );
 
 export const addRemoveMap = createAsyncThunk(
-    'catalog/addRemoveMap',
+    'registry/addRemoveMap',
     async (podObject, {dispatch, getState}) => {
         dispatch(setStatus('adding'));
         console.log(podObject);
@@ -60,44 +67,10 @@ export const addRemoveMap = createAsyncThunk(
     }
 );
 
-// export const downloadAndSwitch = createAsyncThunk(
-//     'catalog/downloadAndSwitch',
-//     async (item, {dispatch, getState}) => {
-//         const {pod, kv, reference} = item;
-//         const user = getState().user;
-//         const api = new FairOS();
-//         dispatch(setStatus('pod_receive'));
-//         await api.podReceive(reference);
-//         dispatch(setStatus('pod_open'));
-//         let response = await api.podOpen(pod, user.password);
-//         if (response.code !== 200) {
-//             throw new Error("Can't open pod");
-//         }
-//
-//         dispatch(setStatus('kv_open'));
-//         await api.kvOpen(kv);
-//         if (response.code !== 200) {
-//             throw new Error("Can't open key value storage");
-//         }
-//
-//         window._fair_pod = pod;
-//         window._fair_kv = kv;
-//         localStorage.setItem('osm_active', JSON.stringify(item));
-//         dispatch(setActiveItem(item));
-//
-//         return true;
-//     }
-// );
-
-export const addSharedAndSwitch = createAsyncThunk(
-    'catalog/addSharedAndSwitch',
+export const addRegistry = createAsyncThunk(
+    'registry/addRegistry',
     async (data, {dispatch, getState}) => {
-        const {reference, title, coordinates} = data;
-        const coordinatesPrepared = coordinates.split(',');
-        if (coordinatesPrepared.length !== 2) {
-            throw new Error("Incorrect coordinates format");
-        }
-
+        const {reference, title} = data;
         const user = getState().user;
         const api = new FairOS();
         dispatch(setStatus('pod_receive_info'));
@@ -108,33 +81,17 @@ export const addSharedAndSwitch = createAsyncThunk(
         }
 
         await api.podOpen(pod, user.password);
-        const kvs = await api.kvLs();
-        if (!kvs || !kvs.Tables || !kvs.Tables.length) {
-            throw new Error("Key-value not found");
-        }
+        const obj = {id: getRandomInt(10000, 100000), title, pod, reference};
 
-        const kv = kvs.Tables[0].table_name;
-        const obj = {id: getRandomInt(10000, 100000), title, coordinates: coordinatesPrepared, pod, kv, reference};
-        // dispatch(downloadAndSwitch(obj));
-
-        let customItems = localStorage.getItem('osm_custom_maps');
-        console.log(customItems);
-        if (customItems) {
-            customItems = JSON.parse(customItems);
-            customItems.push(obj);
-        } else {
-            customItems = [obj];
-        }
-
-        localStorage.setItem('osm_custom_maps', JSON.stringify(customItems));
+        local.addRegistry(obj);
         dispatch(getListAsync());
 
         return true;
     }
 );
 
-export const catalogSlice = createSlice({
-    name: 'catalog',
+export const registrySlice = createSlice({
+    name: 'registry',
     initialState,
     reducers: {
         setList: (state, action) => {
@@ -159,9 +116,6 @@ export const catalogSlice = createSlice({
                 state.status = 'idle';
                 state.list = action.payload;
             })
-            // .addCase(addRemoveMap.pending, (state) => {
-            //     state.status = 'adding';
-            // })
             .addCase(addRemoveMap.rejected, (state, action) => {
                 console.log('addRemoveMap rejected', action.error)
             })
@@ -169,13 +123,7 @@ export const catalogSlice = createSlice({
                 state.status = 'idle';
                 state.list = action.payload;
             })
-            // .addCase(downloadAndSwitch.rejected, (state, action) => {
-            //     state.status = 'idle';
-            // })
-            // .addCase(downloadAndSwitch.fulfilled, (state, action) => {
-            //     state.status = 'idle';
-            // })
-            .addCase(addSharedAndSwitch.rejected, (state, action) => {
+            .addCase(addRegistry.rejected, (state, action) => {
                 state.status = 'error';
                 state.statusText = action.error.message;
             });
@@ -183,18 +131,11 @@ export const catalogSlice = createSlice({
 });
 
 export const deleteLocal = (id) => (dispatch) => {
-    let items = localStorage.getItem('osm_custom_maps');
-    if (!items) {
-        return;
-    }
-
-    items = JSON.parse(items);
-    items = items.filter(item => item.id !== id);
-    localStorage.setItem('osm_custom_maps', JSON.stringify(items));
+    removeRegistry(id);
     dispatch(getListAsync());
 };
 
-export const {setList, setStatus, setActiveItem} = catalogSlice.actions;
-export const selectCatalog = (state) => state.catalog;
-export const selectCatalogList = (state) => state.catalog.list;
-export default catalogSlice.reducer;
+export const {setList, setStatus, setActiveItem} = registrySlice.actions;
+export const selectRegistry = (state) => state.registry;
+export const selectRegistryList = (state) => state.registry.list;
+export default registrySlice.reducer;

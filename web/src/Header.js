@@ -22,7 +22,11 @@ export default function Header({onLogout}) {
                         </li>
 
                         <li className={path === '/catalog' ? 'menu-active' : ''}>
-                            <Link to="/catalog">Catalog</Link>
+                            <Link to="/catalog">Maps catalog</Link>
+                        </li>
+
+                        <li className={path === '/registry' ? 'menu-active' : ''}>
+                            <Link to="/registry">Registries</Link>
                         </li>
 
                         <li className={path === '/about' ? 'menu-active' : ''}>

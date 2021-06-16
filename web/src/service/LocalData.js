@@ -42,3 +42,28 @@ export function findPodIndex(podName, index) {
 export function setWindowIndex(index) {
     window._fair_data = index;
 }
+
+export function getRegistries() {
+    const index = localStorage.getItem('osm_registries');
+    let parsed = [];
+    if (index) {
+        parsed = JSON.parse(index);
+    }
+
+    return parsed;
+}
+
+export function removeRegistry(id) {
+    let items = getRegistries().filter(item => item.id !== id);
+    saveRegistries(items);
+}
+
+export function addRegistry(item) {
+    let items = getRegistries();
+    items.push(item);
+    saveRegistries(items);
+}
+
+export function saveRegistries(index) {
+    localStorage.setItem('osm_registries', JSON.stringify(index));
+}

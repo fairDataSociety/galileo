@@ -5,7 +5,7 @@ export default function Home() {
     return <div className="App">
         <section id="intro">
             <div className="intro-content">
-                <h2>You deserve <span>fair</span><br/>maps!</h2>
+                <h2>You deserve <span><a target="_blank" href="https://fairdatasociety.org/">fair</a></span><br/>maps!</h2>
                 <div>
                     <Link to="/map" className="btn-get-started scrollto">Get Started</Link>
                 </div>

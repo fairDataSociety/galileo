@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "form-data": "^4.0.0",
+    "formdata-node": "^3.5.4",
     "globby": "^11.0.3",
     "node-fetch": "^2.6.1"
   }

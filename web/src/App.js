@@ -12,6 +12,7 @@ import Home from "./Home";
 import Footer from "./Footer";
 import Header from "./Header";
 import {selectCatalog} from "./features/catalog/catalogSlice";
+import Registry from "./features/registry/Registry";
 
 export default function App() {
     const catalog = useSelector(selectCatalog);
@@ -30,7 +31,7 @@ export default function App() {
                     tangramLayer.addTo(map);
                 }}
                 center={[46.948919, 7.440979]}
-                zoom={15}
+                zoom={3}
                 scrollWheelZoom={false}>
             </MapContainer>
         ),
@@ -94,6 +95,10 @@ export default function App() {
 
                     <Route path="/registration">
                         <Registration/>
+                    </Route>
+
+                    <Route path="/registry">
+                        <Registry/>
                     </Route>
 
                     <Route path="/">

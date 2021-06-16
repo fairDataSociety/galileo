@@ -116,7 +116,9 @@ export default class FairOS {
         const pods = await this.podLs();
         for (let pod of [...pods.shared_pod_name, ...pods.pod_name]) {
             const mapIndex = await this.getPodIndex(pod, password);
-            index.pods.push(mapIndex);
+            if (mapIndex) {
+                index.pods.push(mapIndex);
+            }
         }
 
         // await this.kvLoadCsv('maps', 'sw', localStorage.getItem('osm_sw'));

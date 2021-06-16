@@ -2,9 +2,11 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import FairOS from "../../service/FairOS";
 import {setActiveItem} from "../catalog/catalogSlice";
 import {clearOsmIndex, getOsmIndex, saveOsmIndex, setWindowIndex} from "../../service/LocalData";
-import {REGISTRY_KV_NAME} from "../../service/SharedData";
+import {REGISTRY_KV_KEY_NAME, REGISTRY_KV_NAME} from "../../service/SharedData";
+import {getKvValue} from "../../service/Utils";
 
 const initialState = {
+    indexed: false,
     status: 'idle',
     statusText: '',
     isLoggedIn: false,
@@ -28,11 +30,16 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
         await fairOS.podReceive(reference);
         await fairOS.podOpen(podName, password);
         await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
+        let dataFromRegistry = await fairOS.kvGet(registryInfo.pod_name, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME);
+        dataFromRegistry = getKvValue(dataFromRegistry);
+        for (let map of dataFromRegistry) {
+            await fairOS.podReceive(map.reference);
+        }
+        
         dispatch(setRegistry({
             reference,
             pod_name: registryInfo.pod_name
         }));
-
     } else {
         console.error('REACT_APP_DEFAULT_REGISTRY_REFERENCE is not defined');
     }
@@ -48,13 +55,14 @@ export const login = createAsyncThunk(
     async ({username, password}, {dispatch, getState}) => {
         const fairOS = new FairOS();
         const data = await fairOS.login(username, password);
-        await importDefaultRegistry(dispatch, fairOS, password);
+        // await importDefaultRegistry(dispatch, fairOS, password);
         localStorage.setItem('osm_username', username);
         localStorage.setItem('osm_password', password);
         const isLoggedIn = data.code === 200;
         if (isLoggedIn) {
-            const index = await fairOS.getMapsIndex(password);
-            saveOsmIndex(index);
+            // const index = await fairOS.getMapsIndex(password);
+            dispatch(updateIndexes({password}));
+            // saveOsmIndex(index);
         } else {
             clearOsmIndex();
         }
@@ -62,6 +70,22 @@ export const login = createAsyncThunk(
         dispatch(setUser({username, password, isLoggedIn}));
 
         return isLoggedIn;
+    }
+);
+
+export const updateIndexes = createAsyncThunk(
+    'user/updateIndexes',
+    async ({password}, {dispatch, getState}) => {
+        dispatch(setIndexed(false));
+        const fairOS = new FairOS();
+        await importDefaultRegistry(dispatch, fairOS, password);
+        await fairOS.openAll(password);
+        const index = await fairOS.getMapsIndex(password);
+        saveOsmIndex(index);
+        setWindowIndex(getOsmIndex());
+        dispatch(setIndexed(true));
+
+        return true;
     }
 );
 
@@ -77,15 +101,17 @@ export const tryLogin = createAsyncThunk(
         }
 
         const data = await fairOS.login(username, password);
-        await importDefaultRegistry(dispatch, fairOS, password);
+        // await importDefaultRegistry(dispatch, fairOS, password);
         const isLoggedIn = data.code === 200;
-        if (isLoggedIn) {
-            await fairOS.openAll(password);
-        }
-
-        setWindowIndex(getOsmIndex());
-
+        // if (isLoggedIn) {
+        //     await fairOS.openAll(password);
+        // }
+        //
+        // setWindowIndex(getOsmIndex());
         dispatch(setUser({username, password, isLoggedIn}));
+        if (isLoggedIn) {
+            dispatch(updateIndexes({password}));
+        }
 
         return isLoggedIn;
     }
@@ -117,6 +143,9 @@ export const userSlice = createSlice({
         },
         setRegistry: (state, action) => {
             state.registry = action.payload;
+        },
+        setIndexed: (state, action) => {
+            state.indexed = action.payload;
         }
     },
     // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -146,7 +175,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const {setUser, resetStatus, fullReset, setRegistry} = userSlice.actions;
+export const {setUser, resetStatus, fullReset, setRegistry, setIndexed} = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

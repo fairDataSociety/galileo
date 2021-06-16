@@ -1,5 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import FairOS from "../../service/FairOS";
+import {updateIndexes} from "../user/userSlice";
 
 const initialState = {
     status: 'idle',
@@ -11,7 +12,7 @@ const initialState = {
 
 export const registrationAsync = createAsyncThunk(
     'registration/registrationAsync',
-    async ({username, password, mnemonic}) => {
+    async ({username, password, mnemonic}, {dispatch}) => {
         const api = new FairOS();
         let response;
         try {
@@ -26,6 +27,8 @@ export const registrationAsync = createAsyncThunk(
 
         localStorage.setItem('osm_username', username);
         localStorage.setItem('osm_password', password);
+
+        dispatch(updateIndexes({password}));
 
         return response;
     }

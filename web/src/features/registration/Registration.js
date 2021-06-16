@@ -28,7 +28,7 @@ export default function Registration() {
     }
 
     return <div className="App-registration">
-        {component.status === 'registered' && <Redirect to="/catalog"/>}
+        {component.status === 'registered' && <Redirect to="/registry"/>}
         <div className="d-flex justify-content-center">
             <div className="col-sm-9 col-md-6">
                 <h3>Registration in FairOS</h3>

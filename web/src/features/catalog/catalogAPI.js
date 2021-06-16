@@ -1,16 +1,6 @@
 import {findPodIndex, getCustomMaps, getOsmIndex} from "../../service/LocalData";
 import {REGISTRY_KV_KEY_NAME, REGISTRY_KV_NAME} from "../../service/SharedData";
-
-function getKvValue(data) {
-    const values = data?.values;
-    if (!values) {
-        return [];
-    }
-
-    const result = JSON.parse(Buffer.from(values, 'base64').toString('utf8'));
-
-    return Array.isArray(result) ? result : [];
-}
+import {getKvValue} from "../../service/Utils";
 
 export async function fetchCatalogList(api, registryPodName) {
     let customMaps = getCustomMaps();

@@ -12,7 +12,7 @@ export default function Login() {
     let {from} = location.state || {from: {pathname: "/catalog"}};
 
     useEffect(() => {
-        dispatch(resetStatus());
+        // dispatch(resetStatus());
         // dispatch(tryLogin());
     }, []);
 
@@ -22,7 +22,7 @@ export default function Login() {
 
     return (
         <div className="d-flex justify-content-center">
-            {user.isLoggedIn ? <Redirect to={from}/> : ''}
+            {(user.isLoggedIn && user.indexed) ? <Redirect to={from}/> : ''}
             <div className="col-sm-9 col-md-6">
                 <h3>Login with FairOS credentials</h3>
                 <form onSubmit={e => {
@@ -48,7 +48,7 @@ export default function Login() {
                         </div>
 
                         <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
-                            {user.status === 'login' ? <span className="spinner-border spinner-border-sm" role="status"
+                            {(user.status === 'login') ? <span className="spinner-border spinner-border-sm" role="status"
                                                              aria-hidden="true"/> : ''}
                             &nbsp;Submit
                         </button>

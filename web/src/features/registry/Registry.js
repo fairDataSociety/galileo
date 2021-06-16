@@ -124,7 +124,7 @@ export default function Registry() {
             </thead>
             <tbody>
 
-            {state.list.map(item => <tr key={item.id}>
+            {state.list.map(item => <tr key={item.title}>
                 <td>{item.title}</td>
                 <td>
                     {(user.isLoggedIn && state.list.length > 1) &&

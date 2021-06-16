@@ -67,3 +67,14 @@ export function addRegistry(item) {
 export function saveRegistries(index) {
     localStorage.setItem('osm_registries', JSON.stringify(index));
 }
+
+export function getCustomMaps() {
+    let customMaps = localStorage.getItem('osm_custom_maps');
+    if (customMaps) {
+        customMaps = JSON.parse(customMaps);
+    } else {
+        customMaps = [];
+    }
+
+    return customMaps;
+}

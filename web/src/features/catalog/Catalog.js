@@ -36,8 +36,10 @@ export default function Catalog() {
 
     useEffect(() => {
         dispatch(setList([]));
-        dispatch(getListAsync());
-    }, []);
+        if (user.registry.pod_name) {
+            dispatch(getListAsync());
+        }
+    }, [user.registry]);
 
     return <div className="App-catalog">
         <Modal show={showUpload} onHide={_ => setShowUpload(false)}>
@@ -142,7 +144,7 @@ export default function Catalog() {
             </thead>
             <tbody>
 
-            {catalog.list.map(item => <tr key={item.id}>
+            {catalog.list.map(item => <tr key={item.title}>
                 <td>{item.title}</td>
                 <td>
                     {/*{user.isLoggedIn &&*/}

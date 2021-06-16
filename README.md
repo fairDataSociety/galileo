@@ -10,7 +10,7 @@
 
 1) Start Bee node (only 0.5.2 version works correctly at this moment)
 
-2) Start ```dfs server``` (https://github.com/fairDataSociety/fairOS-dfs)
+2) Start ```dfs server``` (https://github.com/fairDataSociety/fairOS-dfs, 0.5.2 without multipods support)
 
 3) Download GeoJSON files of specific region with script: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813 or use other sources to make GeoJSON files
 

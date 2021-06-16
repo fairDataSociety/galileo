@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import FairOS from "../../service/FairOS";
 import {setActiveItem} from "../catalog/catalogSlice";
 import {clearOsmIndex, getOsmIndex, saveOsmIndex, setWindowIndex} from "../../service/LocalData";
+import {REGISTRY_KV_NAME} from "../../service/SharedData";
 
 const initialState = {
     status: 'idle',
@@ -10,8 +11,32 @@ const initialState = {
     username: '',
     password: '',
     pod: '',
-    kv: ''
+    kv: '',
+    registry: {}
 };
+
+async function importDefaultRegistry(dispatch, fairOS, password) {
+    const reference = process.env.REACT_APP_DEFAULT_REGISTRY_REFERENCE;
+    if (reference) {
+        const registryInfo = await fairOS.podReceiveInfo(reference);
+        const podName = registryInfo?.pod_name;
+        if (!podName) {
+            console.error(`Registry info not found: ${reference}`);
+            return;
+        }
+
+        await fairOS.podReceive(reference);
+        await fairOS.podOpen(podName, password);
+        await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
+        dispatch(setRegistry({
+            reference,
+            pod_name: registryInfo.pod_name
+        }));
+
+    } else {
+        console.error('REACT_APP_DEFAULT_REGISTRY_REFERENCE is not defined');
+    }
+}
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
@@ -20,9 +45,10 @@ const initialState = {
 // typically used to make async requests.
 export const login = createAsyncThunk(
     'user/login',
-    async ({username, password}, {dispatch}) => {
+    async ({username, password}, {dispatch, getState}) => {
         const fairOS = new FairOS();
         const data = await fairOS.login(username, password);
+        await importDefaultRegistry(dispatch, fairOS, password);
         localStorage.setItem('osm_username', username);
         localStorage.setItem('osm_password', password);
         const isLoggedIn = data.code === 200;
@@ -41,7 +67,7 @@ export const login = createAsyncThunk(
 
 export const tryLogin = createAsyncThunk(
     'user/tryLogin',
-    async (params, {dispatch}) => {
+    async (params, {dispatch, getState}) => {
         const fairOS = new FairOS();
         const username = localStorage.getItem('osm_username');
         const password = localStorage.getItem('osm_password');
@@ -51,6 +77,7 @@ export const tryLogin = createAsyncThunk(
         }
 
         const data = await fairOS.login(username, password);
+        await importDefaultRegistry(dispatch, fairOS, password);
         const isLoggedIn = data.code === 200;
         if (isLoggedIn) {
             await fairOS.openAll(password);
@@ -87,6 +114,9 @@ export const userSlice = createSlice({
         resetStatus: (state) => {
             state.status = '';
             state.statusText = '';
+        },
+        setRegistry: (state, action) => {
+            state.registry = action.payload;
         }
     },
     // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -116,7 +146,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const {setUser, resetStatus, fullReset} = userSlice.actions;
+export const {setUser, resetStatus, fullReset, setRegistry} = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

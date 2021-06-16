@@ -127,9 +127,9 @@ export default function Registry() {
             {state.list.map(item => <tr key={item.title}>
                 <td>{item.title}</td>
                 <td>
-                    {(user.isLoggedIn && state.list.length > 1) &&
+                    {(user.isLoggedIn) &&
                     <button className="btn btn-success btn-sm"
-                            disabled={state.activeItem?.id === item.id || actionsDisabled}
+                            disabled={state.activeItem?.id === item.id || actionsDisabled || state.list.length <= 1}
                             onClick={_ => {
                                 dispatch(setActiveItem(item));
                             }}>
@@ -146,8 +146,8 @@ export default function Registry() {
                         Delete
                     </button>}
 
-                    {(!user.isLoggedIn || state.list.length <= 1) &&
-                    <p>...</p>}
+                    {/*{(!user.isLoggedIn || state.list.length <= 1) &&*/}
+                    {/*<p>...</p>}*/}
                 </td>
             </tr>)}
 

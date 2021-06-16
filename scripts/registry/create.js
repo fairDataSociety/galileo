@@ -32,9 +32,12 @@ async function run() {
     const ls = await fairOS.podLs();
     console.log(ls);
     config.pod = podName;
+    const share = await fairOS.podShare(podName, password);
+    console.log(share);
+    console.log(`Pod "${podName}" created and added to config. Your sharing reference: ${share.pod_sharing_reference}`);
+    config.share_reference = share.pod_sharing_reference;
     fs.writeFileSync(configPath, JSON.stringify(config, null, '\t'));
-    // todo share pod
-    console.log('Pod created and added to config');
+
 }
 
 run().then(data => {

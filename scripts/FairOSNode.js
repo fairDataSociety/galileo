@@ -78,11 +78,13 @@ module.exports = class FairOS {
     }
 
     podOpen(pod, password) {
-        // let formData = new FormData();
-        // formData.append('pod_name', pod);
-        // formData.append('password', password);
         const formData = {pod_name: pod, password};
         return this.api('POST', `${this.apiUrl}pod/open`, formData);
+    }
+
+    podShare(pod, password) {
+        const formData = {pod_name: pod, password};
+        return this.api('POST', `${this.apiUrl}pod/share`, formData);
     }
 
     podNew(pod, password) {

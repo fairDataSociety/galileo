@@ -2,7 +2,7 @@ import {findPodIndex, getCustomMaps, getOsmIndex} from "../../service/LocalData"
 import {REGISTRY_KV_KEY_NAME, REGISTRY_KV_NAME} from "../../service/SharedData";
 import {getKvValue} from "../../service/Utils";
 
-export async function fetchCatalogList(api, registryPodName) {
+export async function fetchCatalogList(api, registryPodName, password) {
     let customMaps = getCustomMaps();
     const osmIndex = getOsmIndex();
 
@@ -11,6 +11,8 @@ export async function fetchCatalogList(api, registryPodName) {
         return item;
     });
 
+    await api.podOpen(registryPodName, password);
+    await api.kvOpen(registryPodName, REGISTRY_KV_NAME);
     let dataFromRegistry = await api.kvGet(registryPodName, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME);
     dataFromRegistry = getKvValue(dataFromRegistry);
 

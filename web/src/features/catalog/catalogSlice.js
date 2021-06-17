@@ -15,8 +15,9 @@ export const getListAsync = createAsyncThunk(
     'catalog/getListAsync',
     async (nope, {dispatch, getState}) => {
         const podName = getState()?.user?.registry?.pod_name;
+        const password = getState()?.user?.password;
         const api = new FairOS();
-        const response = await fetchCatalogList(api, podName);
+        const response = await fetchCatalogList(api, podName, password);
         // The value we return becomes the `fulfilled` action payload
         return response.data;
     }

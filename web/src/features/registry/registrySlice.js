@@ -4,6 +4,7 @@ import FairOS from "../../service/FairOS";
 import * as local from "../../service/LocalData";
 import {removeRegistry} from "../../service/LocalData";
 import {getRandomInt} from "../../service/Utils";
+import {setRegistry} from "../user/userSlice";
 
 const initialState = {
     status: 'idle',
@@ -27,18 +28,21 @@ export const addRegistry = createAsyncThunk(
         const {reference, title} = data;
         const user = getState().user;
         const api = new FairOS();
-        dispatch(setStatus('pod_receive_info'));
+        // dispatch(setStatus('pod_receive_info'));
         const info = await api.podReceiveInfo(reference);
+       await api.podReceive(reference);
         const pod = info?.pod_name;
         if (!pod) {
             throw new Error("Pod information not found");
         }
 
-        await api.podOpen(pod, user.password);
-        const obj = {id: getRandomInt(10000, 100000), title, pod, reference};
-
+        // await api.podOpen(pod, user.password);
+        const obj = {id: getRandomInt(10000, 100000), title, pod_name: pod, reference};
+        console.log(obj)
         local.addRegistry(obj);
+        dispatch(setRegistry(obj));
         dispatch(getListAsync());
+        await api.openAll(user.password);
 
         return true;
     }

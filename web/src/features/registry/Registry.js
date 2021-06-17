@@ -7,7 +7,7 @@ import {
     setList
 } from "./registrySlice";
 import {useEffect, useState} from "react";
-import {login, selectUser} from "../user/userSlice";
+import {login, selectUser, setRegistry} from "../user/userSlice";
 import {Link} from "react-router-dom";
 import {Button, Modal} from "react-bootstrap";
 
@@ -132,6 +132,7 @@ export default function Registry() {
                             disabled={state.activeItem?.id === item.id || actionsDisabled || state.list.length <= 1}
                             onClick={_ => {
                                 dispatch(setActiveItem(item));
+                                dispatch(setRegistry(item));
                             }}>
                         Use
                     </button>}

@@ -7,7 +7,7 @@ export default class FairOS {
     }
 
     api(method, url, formData = {} | FormData, type = 'json') {
-        const postData = method === 'POST' ? {
+        const postData = (method === 'POST' || method === 'DELETE') ? {
             method: method,
             headers: type === 'json' ? {
                 'Accept': 'application/json',
@@ -51,6 +51,13 @@ export default class FairOS {
         return this.api('POST', `${this.apiUrl}pod/open`, formData);
     }
 
+    podNew(pod, password) {
+        let formData = new FormData();
+        formData.append('pod_name', pod);
+        formData.append('password', password);
+        return this.api('POST', `${this.apiUrl}pod/new`, formData);
+    }
+
     podReceive(reference) {
         return this.api('GET', `${this.apiUrl}pod/receive?sharing_ref=${reference}`);
     }
@@ -88,10 +95,54 @@ export default class FairOS {
         return this.api('POST', `${this.apiUrl}kv/count?pod_name=${podName}`, formData);
     }
 
+    kvNew(podName, kvName) {
+        let formData = new FormData();
+        formData.append('table_name', kvName);
+        formData.append('pod_name', podName);
+        return this.api('POST', `${this.apiUrl}kv/new?pod_name=${podName}`, formData);
+    }
+
+    kvPut(podName, kvName, key, value) {
+        let formData = new FormData();
+        formData.append('table_name', kvName);
+        formData.append('pod_name', podName);
+        formData.append('key', key);
+        formData.append('value', value);
+        return this.api('POST', `${this.apiUrl}kv/entry/put?pod_name=${podName}`, formData);
+    }
+
     kvOpen(podName, kvName) {
         let formData = new FormData();
         formData.append('table_name', kvName);
         return this.api('POST', `${this.apiUrl}kv/open?pod_name=${podName}`, formData);
+    }
+
+    fileUpload(pod, name, content) {
+        let formData = new FormData();
+        const file = new File([content], name);
+        formData.append("files", file);
+
+        return this.api('POST', `${this.apiUrl}file/upload?pod_name=${pod}&dir_path=/&block_size=64Mb`, formData, 'etc');
+    }
+
+    fileDelete(pod, file) {
+        let formData = new FormData();
+        formData.append("file_path", file);
+        formData.append("pod_name", pod);
+        return this.api('DELETE', `${this.apiUrl}file/delete?pod_name=${pod}&file_path=${file}`, formData);
+    }
+
+    dirLs(pod, dir) {
+        return this.api('GET', `${this.apiUrl}dir/ls?pod_name=${pod}&dir_path=${dir}`);
+    }
+
+    fileDownload(pod, path, file) {
+        let formData = new FormData();
+        formData.append("pod_name", pod);
+        formData.append("file", file);
+        formData.append("file_path", path);
+
+        return this.api('POST', `${this.apiUrl}file/download?pod_name=${pod}&file=${file}&file_path=${path}`, formData);
     }
 
     async openAll(password) {

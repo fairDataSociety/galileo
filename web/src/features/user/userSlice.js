@@ -2,7 +2,13 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import FairOS from "../../service/FairOS";
 import {setActiveItem} from "../catalog/catalogSlice";
 import {clearOsmIndex, getOsmIndex, saveOsmIndex, setWindowIndex} from "../../service/LocalData";
-import {REGISTRY_KV_KEY_NAME, REGISTRY_KV_NAME} from "../../service/SharedData";
+import {
+    MAPS_DATA_KV,
+    MAPS_DATA_KV_TABLE_POINTS,
+    MAPS_DATA_POD,
+    REGISTRY_KV_KEY_NAME,
+    REGISTRY_KV_NAME
+} from "../../service/SharedData";
 import {getKvValue} from "../../service/Utils";
 
 const initialState = {
@@ -14,7 +20,9 @@ const initialState = {
     password: '',
     pod: '',
     kv: '',
-    registry: {}
+    registry: {},
+    isMarkerActive: false,
+    markers: []
 };
 
 async function importDefaultRegistry(dispatch, fairOS, password) {
@@ -35,7 +43,7 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
         for (let map of dataFromRegistry) {
             await fairOS.podReceive(map.reference);
         }
-        
+
         dispatch(setRegistry({
             reference,
             pod_name: registryInfo.pod_name
@@ -76,6 +84,7 @@ export const login = createAsyncThunk(
 export const updateIndexes = createAsyncThunk(
     'user/updateIndexes',
     async ({password}, {dispatch, getState}) => {
+        dispatch(downloadMarkers());
         dispatch(setIndexed(false));
         const fairOS = new FairOS();
         await importDefaultRegistry(dispatch, fairOS, password);
@@ -84,6 +93,48 @@ export const updateIndexes = createAsyncThunk(
         saveOsmIndex(index);
         setWindowIndex(getOsmIndex());
         dispatch(setIndexed(true));
+
+        return true;
+    }
+);
+
+export const saveMarkers = createAsyncThunk(
+    'user/saveMarkers',
+    async ({markers}, {dispatch, getState}) => {
+        const user = getState().user;
+        const fairOS = new FairOS();
+        await fairOS.podNew(MAPS_DATA_POD, user.password);
+        await fairOS.podOpen(MAPS_DATA_POD, user.password);
+        await fairOS.kvNew(MAPS_DATA_POD, MAPS_DATA_KV);
+        await fairOS.kvOpen(MAPS_DATA_POD, MAPS_DATA_KV);
+        await fairOS.kvPut(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS, JSON.stringify(markers));
+        // await fairOS.fileDelete(MAPS_DATA_POD, '/info.json');
+        // await fairOS.fileUpload(MAPS_DATA_POD, 'info.json', JSON.stringify(markers));
+        return true;
+    }
+);
+
+export const downloadMarkers = createAsyncThunk(
+    'user/downloadMarkers',
+    async (some, {dispatch, getState}) => {
+        const user = getState().user;
+        const fairOS = new FairOS();
+        try {
+            await fairOS.podNew(MAPS_DATA_POD, user.password);
+            await fairOS.podOpen(MAPS_DATA_POD, user.password);
+            await fairOS.kvOpen(MAPS_DATA_POD, MAPS_DATA_KV);
+            let data = await fairOS.kvGet(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS);
+            data = getKvValue(data);
+            // const dir = await fairOS.dirLs(MAPS_DATA_POD, '/');
+            // console.log(dir);
+            // const data = await fairOS.fileDownload(MAPS_DATA_POD, '/', 'info.json');
+            console.log('downloaded markers', data);
+            if (data && Array.isArray(data)) {
+                dispatch(setMarkers(data));
+            }
+        } catch (e) {
+            console.log(e)
+        }
 
         return true;
     }
@@ -146,6 +197,12 @@ export const userSlice = createSlice({
         },
         setIndexed: (state, action) => {
             state.indexed = action.payload;
+        },
+        setMarkers: (state, action) => {
+            state.markers = action.payload;
+        },
+        setIsMarkerActive: (state, action) => {
+            state.isMarkerActive = action.payload;
         }
     },
     // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -171,11 +228,22 @@ export const userSlice = createSlice({
             })
             .addCase(tryLogin.rejected, (state, action) => {
                 state.status = 'error';
+            })
+            .addCase(downloadMarkers.rejected, (state, action) => {
+                console.log(action);
             });
     },
 });
 
-export const {setUser, resetStatus, fullReset, setRegistry, setIndexed} = userSlice.actions;
+export const {
+    setUser,
+    resetStatus,
+    fullReset,
+    setRegistry,
+    setIndexed,
+    setMarkers,
+    setIsMarkerActive
+} = userSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

@@ -22,6 +22,7 @@ import Footer from "./Footer";
 import Header from "./Header";
 import {selectCatalog} from "./features/catalog/catalogSlice";
 import Registry from "./features/registry/Registry";
+import Terms from "./Terms";
 
 // function DraggableMarker({item}) {
 //     const [draggable, setDraggable] = useState(true)
@@ -233,6 +234,10 @@ export default function App() {
 
                     <Route path="/about">
                         <About/>
+                    </Route>
+
+                    <Route path="/terms">
+                        <Terms/>
                     </Route>
 
                     <Route path="/catalog">

@@ -26,11 +26,12 @@ jobs:
     - uses: actions/checkout@v2
     - run: cp ./public/example.scene.yaml ./public/scene.yaml
     - name: Find and Replace
-      uses: jacobtomlinson/gha-find-replace@master
+      uses: bluwy/substitute-string-action@v1
+      id: sub
       with:
-        find: "http://localhost:9090/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}"
-        replace: "https://fairos.fairdatasociety.org/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}"
-        include: "scene.yaml"
+        _input-file: './public/scene.yaml'
+        _format-key: '%%key%%'
+        fair_url: 'https://fairos.fairdatasociety.org/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}'
     - name: Create .env file
       run: |
           touch .env

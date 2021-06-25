@@ -29,7 +29,7 @@ jobs:
       uses: bluwy/substitute-string-action@v1
       id: sub
       with:
-        _input-file: './web/public/scene.yaml'
+        _input-file: './public/scene.yaml'
         _format-key: '%%key%%'
         fair_url: 'https://fairos.fairdatasociety.org/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}'
     - name: Create .env file

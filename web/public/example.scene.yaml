@@ -95,7 +95,8 @@ styles:
 sources:
     tilezen:
         type: GeoJSON
-        url: %%fair_url%%
+        # url: http://localhost:9090/v1/kv/entry/get?pod_name={fair_pod}&table_name={fair_kv}&key={z}_{x}_{y}
+        url: fair_url
         tile_size: 512
         max_zoom: 15
         # zooms: [0, 2, 4, 6, 8, 10, 12, 14, 16] # only load tiles every 2 zooms (overrides max_zoom)

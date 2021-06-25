@@ -25,7 +25,8 @@
     "start": "react-scripts start",
     "build": "cp ./node_modules/tangram/dist/tangram.min.js public/tangram.min.js && react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "rm -r /home/ubuntu/www/fairmaps.fairdatasociety.org && mv ./build /home/ubuntu/www/fairmaps.fairdatasociety.org"
   },
   "eslintConfig": {
     "extends": [

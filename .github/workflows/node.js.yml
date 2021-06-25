@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - run: cp ./web/public/example.scene.yaml ./web/public/scene.yaml
+    - run: cp ./public/example.scene.yaml ./public/scene.yaml
     - name: Find and Replace
       uses: bluwy/substitute-string-action@v1
       id: sub

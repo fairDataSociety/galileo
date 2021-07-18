@@ -11,7 +11,7 @@ export default function Terms() {
                     Likewise, the developers disclaim all express and implied warranties for the application under test
                     and the tester uses the app at their own risk. Furthermore, all future beta updates are subject to
                     the same terms.</p><p>Disclaimer of Liability and Warranties</p><p className="small-print">IN NO
-                    EVENT SHALL THE Galileo PLATFORM OR ITS INDEPENDENT DEVELOPERS AND SUPPLIERS BE LIABLE FOR ANY
+                    EVENT SHALL THE GALILEO PLATFORM OR ITS INDEPENDENT DEVELOPERS AND SUPPLIERS BE LIABLE FOR ANY
                     DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF PROFITS, BUSINESS
                     INTERRUPTION, LOSS OF INFORMATION) ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, EVEN
                     IF THE GALILEO PLATFORM PROVIDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p><p>Users

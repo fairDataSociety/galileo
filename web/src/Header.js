@@ -12,7 +12,7 @@ export default function Header({onLogout}) {
         <header id="header">
             <div className="container">
                 <div id="logo" className="float-left">
-                    <h1><Link to="/" className="scrollto">Fair<span>Maps</span></Link></h1>
+                    <h1><Link to="/" className="scrollto">Galileo</Link></h1>
                 </div>
 
                 <nav id="nav-menu-container">

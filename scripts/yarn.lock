@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@fairdatasociety/fairos-js@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@fairdatasociety/fairos-js/-/fairos-js-1.0.0.tgz#d6f2d9dda5f6562731d7d636d4567b7bfac3f257"
+  integrity sha512-8mpixkbvJ6EV7ur4zgh6U/45ZIdAhjqpU0l0EjIug9WvEkUwsbRiWeVf+sZ4HAsJLJupdYxY88CrmRSzWxUiSw==
+  dependencies:
+    axios "^0.21.1"
+    form-data-encoder "^1.4.0"
+    formdata-node "^3.6.3"
+    stream "^0.0.2"
+
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.4.tgz#d4b3549a5db5de2683e0c1071ab4f140904bbf69"
@@ -28,6 +38,13 @@ array-union@^2.1.0:
   resolved "https://registry.yarnpkg.com/array-union/-/array-union-2.1.0.tgz#b798420adbeb1de828d84acd8a2e23d3efe85e8d"
   integrity sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==
 
+axios@^0.21.1:
+  version "0.21.3"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.3.tgz#f85d9b747f9b66d59ca463605cedf1844872b82e"
+  integrity sha512-JtoZ3Ndke/+Iwt5n+BgSli/3idTvpt5OjKyoCmz4LX5+lPiY5l7C1colYezhlxThjNa/NhngCUWZSZFypIFuaA==
+  dependencies:
+    follow-redirects "^1.14.0"
+
 braces@^3.0.1:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/braces/-/braces-3.0.2.tgz#3454e1a462ee8d599e236df336cd9ea4f8afe107"
@@ -42,12 +59,15 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-domexception@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/domexception/-/domexception-2.0.1.tgz#fb44aefba793e1574b0af6aed2801d057529f304"
-  integrity sha512-yxJ2mFy/sibVQlu5qHjOkf9J3K6zgmCxgJ94u2EdvDOV09H+32LtRswEcUsmUWN72pVLOEnTSRaIVVzVQgS0dg==
-  dependencies:
-    webidl-conversions "^5.0.0"
+dotenv@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
+  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
+
+emitter-component@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/emitter-component/-/emitter-component-1.1.1.tgz#065e2dbed6959bf470679edabeaf7981d1003ab6"
+  integrity sha1-Bl4tvtaVm/RwZ57avq95gdEAOrY=
 
 fast-glob@^3.1.1:
   version "3.2.5"
@@ -80,14 +100,37 @@ fill-range@^7.0.1:
   dependencies:
     to-regex-range "^5.0.1"
 
-formdata-node@^3.5.4:
-  version "3.5.4"
-  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-3.5.4.tgz#f96a1666fe31ccdfe7c46f320c7c52f522b6490e"
-  integrity sha512-1uQGEK8LbsFaNW1pHFnYnK5+BBQkZWB+yEyZrNthh3Ud+zXsHQW0DhuamOWosQuyq1FY7YfZY+xOvyjl5mIaSw==
+follow-redirects@^1.14.0:
+  version "1.14.3"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.3.tgz#6ada78118d8d24caee595595accdc0ac6abd022e"
+  integrity sha512-3MkHxknWMUtb23apkgz/83fDoe+y+qr0TdgacGIA7bew+QLBo3vdgEN2xEsuXNivpFy4CyDhBBZnNZOtalmenw==
+
+form-data-encoder@1.4.3:
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/form-data-encoder/-/form-data-encoder-1.4.3.tgz#b0975dbe5795676f211c0ff98e473eaf52b0db4a"
+  integrity sha512-ARLR/jJaj3+tlKkO7h1uvvjQcD6xCiKyg42hcG5Q4jv8uDa1IMPs81bM3BwI8BrqVEQxF9pX6tx0iLIzAvr31Q==
+
+form-data-encoder@^1.4.0:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/form-data-encoder/-/form-data-encoder-1.5.1.tgz#66508c51cc635691c68c5a7e207dba4619a7c092"
+  integrity sha512-o9RStqNROZ86N+eBlxKxY7knpTCwPIol1Q9tE864l7AxKee77d6BtkIHX0N0zUPcHTzHHLLcwl8b5CBWnm5AiQ==
+
+formdata-node@^3.6.3:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-3.7.0.tgz#b58942e617639a0ebea57227cfff8332a4020760"
+  integrity sha512-O3y7XoWwE4zRvI5e1yVPDHyDGtEgGEI10KxTbQeMbEEt+imR7uxbL5Z4BCaHz5M09d1pkrFaqeYc8beAce4VSw==
   dependencies:
-    domexception "2.0.1"
     fetch-blob "2.1.2"
-    mime-types "2.1.31"
+    form-data-encoder "1.4.3"
+    node-domexception "1.0.0"
+
+formdata-node@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-4.0.1.tgz#7370d752e9c53fe6c5cf1fd141dc0564172595fb"
+  integrity sha512-7qe/s/LQR4KE9zzPBg8HXRQQsgze4VtwTX9viuVOsodD5QSu7MKsNiSy5BWYDwV+kAcDTh3y7WnC5ZHK5t4Aqg==
+  dependencies:
+    fetch-blob "2.1.2"
+    node-domexception "1.0.0"
 
 glob-parent@^5.1.0:
   version "5.1.2"
@@ -143,17 +186,10 @@ micromatch@^4.0.2:
     braces "^3.0.1"
     picomatch "^2.2.3"
 
-mime-db@1.48.0:
-  version "1.48.0"
-  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.48.0.tgz#e35b31045dd7eada3aaad537ed88a33afbef2d1d"
-  integrity sha512-FM3QwxV+TnZYQ2aRqhlKBMHxk10lTbMt3bBkMAp54ddrNeVSfcQYOOKuGuy3Ddrm38I04If834fOUSq1yzslJQ==
-
-mime-types@2.1.31:
-  version "2.1.31"
-  resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.31.tgz#a00d76b74317c61f9c2db2218b8e9f8e9c5c9e6b"
-  integrity sha512-XGZnNzm3QvgKxa8dpzyhFTHmpP3l5YNusmne07VUOXxou9CqUqYa/HBy124RqtVh/O2pECas/MOcsDgpilPOPg==
-  dependencies:
-    mime-db "1.48.0"
+node-domexception@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
+  integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
 
 node-fetch@^2.6.1:
   version "2.6.1"
@@ -192,14 +228,16 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
+stream@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/stream/-/stream-0.0.2.tgz#7f5363f057f6592c5595f00bc80a27f5cec1f0ef"
+  integrity sha1-f1Nj8Ff2WSxVlfALyAon9c7B8O8=
+  dependencies:
+    emitter-component "^1.1.1"
+
 to-regex-range@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/to-regex-range/-/to-regex-range-5.0.1.tgz#1648c44aae7c8d988a326018ed72f5b4dd0392e4"
   integrity sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==
   dependencies:
     is-number "^7.0.0"
-
-webidl-conversions@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-5.0.0.tgz#ae59c8a00b121543a2acc65c0434f57b0fc11aff"
-  integrity sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==

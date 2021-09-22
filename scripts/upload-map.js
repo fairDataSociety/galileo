@@ -84,6 +84,14 @@ async function run() {
         console.log(reason ? `Error on ${reason}:` : 'Error:', message);
     }
 
+    async function forceReloginBug(username, password, pod, mapKv) {
+        await fairos.userLogin(username, password);
+        console.log('Opening pod...');
+        await fairos.podOpen(pod, password);
+        console.log('Opening key-value...');
+        await fairos.kvOpen(pod, mapKv);
+    }
+
     try {
         console.log('Connecting to FairOS...');
         const data = await fairos.userPresent('.');
@@ -103,7 +111,7 @@ async function run() {
         console.log('Login...')
         isLogged = !!(await fairos.userLogin(username, password));
     } catch (e) {
-        // logError(e);
+        logError(e, 'login');
     }
 
     if (!isLogged) {
@@ -139,44 +147,65 @@ async function run() {
 
     const notUploadedKeys = [];
     let isUploaded = false;
-    for (let i = 0; i < mapIndex.length; i++) {
-        const indexItem = mapIndex[i];
-        const key = indexItem.key;
-        if (command === 'retry') {
-            if (!retryUpload.includes(key)) {
-                continue;
+    if (command !== 'ref') {
+        for (let i = 0; i < mapIndex.length; i++) {
+            isUploaded = false;
+            const indexItem = mapIndex[i];
+            const key = indexItem.key;
+            if (command === 'retry') {
+                if (!retryUpload.includes(key)) {
+                    continue;
+                }
+            }
+
+            console.log(`[${(new Date()).toLocaleTimeString()}] Uploading ${i + 1}/${mapIndex.length} - ${key}...`);
+            try {
+                const content = fs.readFileSync(indexItem.full, 'utf-8');
+                let data = (await fairos.kvEntryPut(pod, mapKv, key, content)).data;
+                isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
+            } catch (e) {
+
+            }
+
+            console.log('isUploaded', isUploaded);
+            if (!isUploaded) {
+                notUploadedKeys.push(key);
+                fs.writeFileSync(NOT_UPLOADED_IDS_PATH, JSON.stringify(notUploadedKeys));
+                // todo cool down and try again
+            }
+
+            // force relogin after some time
+            if (i % 50 === 0) {
+                try {
+                    await forceReloginBug(username, password, pod, mapKv);
+                } catch (e) {
+
+                }
             }
         }
 
-        console.log(`[${(new Date()).toLocaleTimeString()}] Uploading ${i + 1}/${mapIndex.length} - ${key}...`);
+        console.log('Set map index...');
+        isUploaded = false;
+        const jsonIndex = JSON.stringify(makeIndexJson(mapIndex));
         try {
-            let data = (await fairos.kvEntryPut(pod, mapKv, key, indexItem.full)).data;
+            isUploaded = false;
+            let data = (await fairos.kvEntryPut(pod, mapKv, 'map_index', jsonIndex)).data;
             isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
         } catch (e) {
 
         }
 
-        console.log('isUploaded', isUploaded);
-        if (!isUploaded) {
-            notUploadedKeys.push(key);
-            fs.writeFileSync(NOT_UPLOADED_IDS_PATH, JSON.stringify(notUploadedKeys));
-        }
+        console.log(`Index upload status`, isUploaded);
+        console.log(`Uploaded with error: ${notUploadedKeys.length}, successfully: ${mapIndex.length - notUploadedKeys.length}`);
     }
 
-    console.log('Set map index...');
-    isUploaded = false;
-    const jsonIndex = JSON.stringify(makeIndexJson(mapIndex));
     try {
-        let data = (await fairos.kvEntryPut(pod, mapKv, 'map_index', jsonIndex)).data;
-        isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
+        await forceReloginBug(username, password, pod, mapKv);
+        const sharedInfo = await fairos.podShare(pod, password);
+        console.log('Map reference', sharedInfo.data.pod_sharing_reference);
     } catch (e) {
-
+        logError(e, 'map reference');
     }
-
-    console.log(`Index upload status`, isUploaded);
-    console.log(`Uploaded with error: ${notUploadedKeys.length}, successfully: ${mapIndex.length - notUploadedKeys.length}`);
-    const sharedInfo = await fairos.podShare(pod, password);
-    console.log('Map reference', sharedInfo.data.pod_sharing_reference);
 }
 
 run().then();

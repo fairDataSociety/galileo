@@ -31,8 +31,8 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
         const registryInfo = await fairOS.podReceiveInfo(reference);
         const podName = registryInfo?.pod_name;
         if (!podName) {
-            console.error(`Registry info not found: ${reference}`);
-            return;
+            console.log(`Registry info not found: ${reference}`);
+            return false;
         }
 
         await fairOS.podReceive(reference);
@@ -50,24 +50,26 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
         }));
     } else {
         console.error('REACT_APP_DEFAULT_REGISTRY_REFERENCE is not defined');
+        return false;
     }
+
+    return true;
 }
 
-// The function below is called a thunk and allows us to perform async logic. It
-// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
-// will call the thunk with the `dispatch` function as the first argument. Async
-// code can then be executed and other actions can be dispatched. Thunks are
-// typically used to make async requests.
 export const login = createAsyncThunk(
     'user/login',
-    async ({username, password}, {dispatch, getState}) => {
+    async ({username, password}, {dispatch}) => {
         const fairOS = new FairOS();
         const data = await fairOS.login(username, password);
         // await importDefaultRegistry(dispatch, fairOS, password);
-        localStorage.setItem('osm_username', username);
-        localStorage.setItem('osm_password', password);
         const isLoggedIn = data.code === 200;
+        if (!isLoggedIn) {
+            throw new Error('Incorrect login or password');
+        }
+
         if (isLoggedIn) {
+            localStorage.setItem('osm_username', username);
+            localStorage.setItem('osm_password', password);
             // const index = await fairOS.getMapsIndex(password);
             dispatch(updateIndexes({password}));
             // saveOsmIndex(index);
@@ -87,11 +89,14 @@ export const updateIndexes = createAsyncThunk(
         dispatch(downloadMarkers());
         dispatch(setIndexed(false));
         const fairOS = new FairOS();
-        await importDefaultRegistry(dispatch, fairOS, password);
+        const isImported = await importDefaultRegistry(dispatch, fairOS, password);
+        // if (isImported) {
         await fairOS.openAll(password);
         const index = await fairOS.getMapsIndex(password);
         saveOsmIndex(index);
         setWindowIndex(getOsmIndex());
+        // }
+
         dispatch(setIndexed(true));
 
         return true;

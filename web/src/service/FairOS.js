@@ -114,7 +114,9 @@ export default class FairOS {
     kvOpen(podName, kvName) {
         let formData = new FormData();
         formData.append('table_name', kvName);
-        return this.api('POST', `${this.apiUrl}kv/open?pod_name=${podName}`, formData);
+        formData.append('pod_name', podName);
+
+        return this.api('POST', `${this.apiUrl}kv/open`, formData);
     }
 
     fileUpload(pod, name, content) {
@@ -188,13 +190,13 @@ export default class FairOS {
                 let mapIndex = await this.kvGet(pod, kv.table_name, 'map_index');
                 if (mapIndex.code !== 500 && mapIndex.values) {
                     mapIndex = atob(mapIndex.values)
-                    if (mapIndex.indexOf('map_index,') === -1) {
-                        continue;
-                    }
-
-                    mapIndex = mapIndex.replace('map_index,', '');
-                    mapIndex = mapIndex.replaceAll('""', '"');
-                    mapIndex = mapIndex.slice(1, -1);
+                    // if (mapIndex.indexOf('map_index,') === -1) {
+                    //     continue;
+                    // }
+                    //
+                    // mapIndex = mapIndex.replace('map_index,', '');
+                    // mapIndex = mapIndex.replaceAll('""', '"');
+                    // mapIndex = mapIndex.slice(1, -1);
                     mapIndex = JSON.parse(mapIndex);
                     result = {
                         pod,

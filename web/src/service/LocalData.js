@@ -78,3 +78,7 @@ export function getCustomMaps() {
 
     return customMaps;
 }
+
+export function saveCustomMaps(data) {
+    localStorage.setItem('osm_custom_maps', JSON.stringify(data));
+}

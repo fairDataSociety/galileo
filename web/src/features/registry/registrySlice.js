@@ -30,7 +30,7 @@ export const addRegistry = createAsyncThunk(
         const api = new FairOS();
         // dispatch(setStatus('pod_receive_info'));
         const info = await api.podReceiveInfo(reference);
-       await api.podReceive(reference);
+        await api.podReceive(reference);
         const pod = info?.pod_name;
         if (!pod) {
             throw new Error("Pod information not found");

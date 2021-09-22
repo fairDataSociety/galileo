@@ -1,7 +1,13 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {fetchCatalogList} from "./catalogAPI";
 import FairOS from "../../service/FairOS";
-import {addPodToIndex, getOsmIndex, removePodFromOsmIndex, setWindowIndex} from "../../service/LocalData";
+import {
+    addPodToIndex,
+    getCustomMaps,
+    getOsmIndex,
+    removePodFromOsmIndex, saveCustomMaps,
+    setWindowIndex
+} from "../../service/LocalData";
 import {getRandomInt} from "../../service/Utils";
 
 const initialState = {
@@ -96,13 +102,14 @@ export const addSharedAndSwitch = createAsyncThunk(
     'catalog/addSharedAndSwitch',
     async (data, {dispatch, getState}) => {
         const {reference, title, coordinates} = data;
-        const coordinatesPrepared = coordinates.split(',');
+        const user = getState().user;
+        const api = new FairOS();
+
+        const coordinatesPrepared = coordinates.split(',').map(item => item.trim());
         if (coordinatesPrepared.length !== 2) {
             throw new Error("Incorrect coordinates format");
         }
 
-        const user = getState().user;
-        const api = new FairOS();
         dispatch(setStatus('pod_receive_info'));
         const info = await api.podReceiveInfo(reference);
         const pod = info?.pod_name;
@@ -110,8 +117,9 @@ export const addSharedAndSwitch = createAsyncThunk(
             throw new Error("Pod information not found");
         }
 
+        await api.podReceive(reference);
         await api.podOpen(pod, user.password);
-        const kvs = await api.kvLs();
+        const kvs = await api.kvLs(pod);
         if (!kvs || !kvs.Tables || !kvs.Tables.length) {
             throw new Error("Key-value not found");
         }
@@ -119,17 +127,9 @@ export const addSharedAndSwitch = createAsyncThunk(
         const kv = kvs.Tables[0].table_name;
         const obj = {id: getRandomInt(10000, 100000), title, coordinates: coordinatesPrepared, pod, kv, reference};
         // dispatch(downloadAndSwitch(obj));
-
-        let customItems = localStorage.getItem('osm_custom_maps');
-        console.log(customItems);
-        if (customItems) {
-            customItems = JSON.parse(customItems);
-            customItems.push(obj);
-        } else {
-            customItems = [obj];
-        }
-
-        localStorage.setItem('osm_custom_maps', JSON.stringify(customItems));
+        let customItems = getCustomMaps();
+        customItems.push(obj);
+        saveCustomMaps(customItems);
         dispatch(getListAsync());
 
         return true;

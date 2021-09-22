@@ -28,7 +28,8 @@ export default function Catalog() {
 
     const isAddMapDisabled = () => {
         return !mapReference ||
-            mapReference.length !== 128 ||
+            // mapReference.length !== 128 ||
+            mapReference.length !== 64 ||
             !mapTitle ||
             !mapCoordinates ||
             mapCoordinates.split(',').length !== 2;
@@ -36,9 +37,9 @@ export default function Catalog() {
 
     useEffect(() => {
         dispatch(setList([]));
-        if (user.registry.pod_name) {
-            dispatch(getListAsync());
-        }
+        // if (user.registry.pod_name) {
+        dispatch(getListAsync());
+        // }
     }, [user.registry]);
 
     return <div className="App-catalog">
@@ -199,6 +200,10 @@ export default function Catalog() {
                     <p>...</p>}
                 </td>
             </tr>)}
+
+            {catalog.status !== 'loading' && catalog.list.length === 0 && <tr key={0}>
+                <td>No maps found</td>
+            </tr>}
 
             {catalog.status === 'loading' && <tr key={0}>
                 <td>Loading...</td>

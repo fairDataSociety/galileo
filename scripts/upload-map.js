@@ -10,8 +10,21 @@ const password = process.env.FAIROS_PASSWORD;
 const pod = process.env.FAIROS_POD;
 const mapKv = process.env.FAIROS_MAP_KV;
 const mapPath = process.env.MAP_PATH;
+const command = process.argv[2];
 
-console.log(`Init. Username: ${username}, pod: ${pod}, map kv: ${mapKv}`);
+const NOT_UPLOADED_IDS_PATH = './not_uploaded_ids.txt';
+let retryUpload = [];
+if (fs.existsSync(NOT_UPLOADED_IDS_PATH)) {
+    if (!command) {
+        console.log('Not uploaded ids list found but command not specified.\r\nPass "retry" or "skip". \r\n"retry" will upload not uploaded ids\r\n"skip" will skip not uploaded ids');
+        return;
+    } else if (command === 'retry') {
+        retryUpload = JSON.parse(fs.readFileSync(NOT_UPLOADED_IDS_PATH, {encoding: 'utf8', flag: 'r'}));
+    }
+
+}
+
+console.log(`Hello! Username: ${username}, pod: ${pod}, map kv: ${mapKv}, url: ${fairOSUrl}, mode: ${command}`);
 
 if (!(username && password && pod && mapKv)) {
     console.log('Incorrect input data. Create .env file and fill all info');
@@ -41,6 +54,26 @@ function createMapIndex(path) {
         .filter(item => item.key.split('_').length === 3);
 }
 
+function makeIndexJson(files) {
+    let index = {};
+    files.forEach(item => {
+        let [z, x, y] = item.short.replace('.json', '').split('/');
+        if (!index[z]) {
+            index[z] = {};
+        }
+
+        if (!index[z][x]) {
+            index[z][x] = {};
+        }
+
+        if (!index[z][x][y]) {
+            index[z][x][y] = 1;
+        }
+    });
+
+    return index;
+}
+
 const mapIndex = createMapIndex(mapPath);
 console.log(`Found ${mapIndex.length} map keys`);
 
@@ -51,15 +84,23 @@ async function run() {
         console.log(reason ? `Error on ${reason}:` : 'Error:', message);
     }
 
-    function createCsvContent(key, file) {
-        let value = replaceAll(fs.readFileSync(file, {encoding: 'utf8', flag: 'r'}), '"', '""');
-
-        return `Key,Value\r\n${key},\"${value}\"`;
+    try {
+        console.log('Connecting to FairOS...');
+        const data = await fairos.userPresent('.');
+        if (!data.present) {
+            console.log('FairOS connected');
+        } else {
+            throw new Error('Can\'t connect');
+        }
+    } catch (e) {
+        console.log('Can\'t connect to FairOS. Check url and internet connection', e);
+        return;
     }
 
     // let data;
     let isLogged = false;
     try {
+        console.log('Login...')
         isLogged = !!(await fairos.userLogin(username, password));
     } catch (e) {
         // logError(e);
@@ -67,6 +108,7 @@ async function run() {
 
     if (!isLogged) {
         try {
+            console.log('Signup...');
             await fairos.userSignup(username, password)
         } catch (e) {
             logError(e, 'signup');
@@ -84,6 +126,7 @@ async function run() {
 
     // relogin due to fairos bug
     await fairos.userLogin(username, password);
+    console.log('Opening pod...');
     await fairos.podOpen(pod, password);
     try {
         await fairos.kvNew(pod, mapKv);
@@ -91,33 +134,49 @@ async function run() {
 
     }
 
+    console.log('Opening key-value...');
     await fairos.kvOpen(pod, mapKv);
 
+    const notUploadedKeys = [];
+    let isUploaded = false;
     for (let i = 0; i < mapIndex.length; i++) {
         const indexItem = mapIndex[i];
         const key = indexItem.key;
-        console.log(`Uploading ${i + 1}/${mapIndex.length} - ${key}...`);
-
-        const formData = new FormData();
-        const blob = new Blob([createCsvContent(key, indexItem.full)], {type: "text/plain"})
-        formData.set('csv', blob);
-        let data = (await fairos.kvLoadCsv(pod, mapKv, formData)).data;
-        if (data.code !== 200) {
-            throw new Error("CSV not uploaded");
+        if (command === 'retry') {
+            if (!retryUpload.includes(key)) {
+                continue;
+            }
         }
 
-        const isUploaded = data.message.indexOf('success: 1,') > -1;
-        console.log('isUploaded', isUploaded);
-
+        console.log(`[${(new Date()).toLocaleTimeString()}] Uploading ${i + 1}/${mapIndex.length} - ${key}...`);
         try {
-            data = (await fairos.kvEntryGet(pod, mapKv, key)).data;
-            console.log('Kv get data', data);
+            let data = (await fairos.kvEntryPut(pod, mapKv, key, indexItem.full)).data;
+            isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
         } catch (e) {
-            logError(e);
+
         }
 
-        return;
+        console.log('isUploaded', isUploaded);
+        if (!isUploaded) {
+            notUploadedKeys.push(key);
+            fs.writeFileSync(NOT_UPLOADED_IDS_PATH, JSON.stringify(notUploadedKeys));
+        }
     }
+
+    console.log('Set map index...');
+    isUploaded = false;
+    const jsonIndex = JSON.stringify(makeIndexJson(mapIndex));
+    try {
+        let data = (await fairos.kvEntryPut(pod, mapKv, 'map_index', jsonIndex)).data;
+        isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
+    } catch (e) {
+
+    }
+
+    console.log(`Index upload status`, isUploaded);
+    console.log(`Uploaded with error: ${notUploadedKeys.length}, successfully: ${mapIndex.length - notUploadedKeys.length}`);
+    const sharedInfo = await fairos.podShare(pod, password);
+    console.log('Map reference', sharedInfo.data.pod_sharing_reference);
 }
 
 run().then();

@@ -1,4 +1,5 @@
 const fs = require('fs');
+// todo migrate to fairos-js
 const FairOS = require('../FairOSNode');
 
 // node add-map.js "Test Map" map_switzerland_username map "46.947978, 7.440386" eebc7bf689f76c9889fc1fd3f6b1c448168b121493359871c13624a2459ab583775dee8b7665eb3ee90ebabbad21026622bc5334870809738610c86beb1c5532

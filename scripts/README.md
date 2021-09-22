@@ -1,4 +1,4 @@
-```json-files-to-csv.js``` - convert json tile files to one csv
+```json-files-to-csv.js``` - DEPRECATED convert json tile files to one csv
 
 ```registry/create.js``` - create registry which contain references for maps
 

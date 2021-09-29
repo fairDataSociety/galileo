@@ -1,12 +1,8 @@
-import fs from "fs";
-import tempy from 'tempy';
-import globby from "globby";
-import {Blob, FormData} from 'formdata-node';
-import {fileFromPath} from 'formdata-node/file-from-path';
-import FairOS from '@fairdatasociety/fairos-js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+const FairOS = require('@fairdatasociety/fairos-js');
+const {FormData, Blob} = require('formdata-node');
+const globby = require("globby");
+const fs = require("fs");
+require('dotenv').config()
 
 const fairOSUrl = process.env.FAIROS_URL;
 const username = process.env.FAIROS_USERNAME;
@@ -15,24 +11,24 @@ const pod = process.env.FAIROS_POD;
 const mapKv = process.env.FAIROS_MAP_KV;
 const mapPath = process.env.MAP_PATH;
 const command = process.argv[2];
-const commandParam = process.argv[3];
 
 const NOT_UPLOADED_IDS_PATH = './not_uploaded_ids.txt';
 let retryUpload = [];
 if (fs.existsSync(NOT_UPLOADED_IDS_PATH)) {
     if (!command) {
         console.log('Not uploaded ids list found but command not specified.\r\nPass "retry" or "skip". \r\n"retry" will upload not uploaded ids\r\n"skip" will skip not uploaded ids');
-        process.exit();
+        return;
     } else if (command === 'retry') {
         retryUpload = JSON.parse(fs.readFileSync(NOT_UPLOADED_IDS_PATH, {encoding: 'utf8', flag: 'r'}));
     }
+
 }
 
 console.log(`Hello! Username: ${username}, pod: ${pod}, map kv: ${mapKv}, url: ${fairOSUrl}, mode: ${command}`);
 
 if (!(username && password && pod && mapKv)) {
     console.log('Incorrect input data. Create .env file and fill all info');
-    process.exit();
+    return;
 }
 
 const fairos = new FairOS(fairOSUrl);
@@ -96,8 +92,6 @@ async function run() {
         await fairos.kvOpen(pod, mapKv);
     }
 
-    const tempCsvFile = commandParam ? commandParam : tempy.file({extension: 'csv'});
-
     try {
         console.log('Connecting to FairOS...');
         const data = await fairos.userPresent('.');
@@ -151,63 +145,68 @@ async function run() {
     console.log('Opening key-value...');
     await fairos.kvOpen(pod, mapKv);
 
-    const isCreateCsv = command === '' || command === 'createcsv';
-    const isUploadCsv = command === '' || command === 'uploadcsv';
-    const isSharePod = command === '' || command === 'ref';
-
-    if (isUploadCsv && !commandParam) {
-        console.log('For upload csv file - pass file name');
-        process.exit();
-    }
-
-    if (isCreateCsv) {
-        fs.appendFileSync(tempCsvFile, `Key,Value\r\n`)
-        for (const [index, file] of mapIndex.entries()) {
-            console.log(`File ${index + 1}/${mapIndex.length} adding to csv...`);
-            const key = replaceAll(file.short.replace('.json', ''), '/', '_');
-            let value = replaceAll(fs.readFileSync(file.full, {encoding: 'utf8', flag: 'r'}), '"', '""');
-            fs.appendFileSync(tempCsvFile, `${key},"${value}"\r\n`);
-        }
-
-        console.log('Adding index...');
-        const index = JSON.stringify(makeIndexJson(mapIndex));
-        let value = replaceAll(index, '"', '""');
-        fs.appendFileSync(tempCsvFile, `map_index,"${value}"\r\n`);
-    }
-
-    if (isUploadCsv) {
-        try {
-            if (!fs.existsSync(tempCsvFile)) {
-                console.log('Csv file not found');
-                process.exit();
+    const notUploadedKeys = [];
+    let isUploaded = false;
+    if (command !== 'ref') {
+        for (let i = 0; i < mapIndex.length; i++) {
+            isUploaded = false;
+            const indexItem = mapIndex[i];
+            const key = indexItem.key;
+            if (command === 'retry') {
+                if (!retryUpload.includes(key)) {
+                    continue;
+                }
             }
 
-            await forceReloginBug(username, password, pod, mapKv);
-            const formData = new FormData();
-            formData.set('csv', await fileFromPath(tempCsvFile));
-            console.log('Uploading csv...');
-            const data = await fairos.kvLoadCsv(pod, mapKv, formData, true);
-            console.log('Csv uploading result', data.data.message);
-        } catch (e) {
-            // logError(e, 'uploading csv');
-            console.log(e);
+            console.log(`[${(new Date()).toLocaleTimeString()}] Uploading ${i + 1}/${mapIndex.length} - ${key}...`);
+            try {
+                const content = fs.readFileSync(indexItem.full, 'utf-8');
+                let data = (await fairos.kvEntryPut(pod, mapKv, key, content)).data;
+                console.log(data);
+                isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
+            } catch (e) {
+                logError(e, 'entry put')
+            }
+
+            console.log('isUploaded', isUploaded);
+            if (!isUploaded) {
+                notUploadedKeys.push(key);
+                fs.writeFileSync(NOT_UPLOADED_IDS_PATH, JSON.stringify(notUploadedKeys));
+                // todo cool down and try again
+            }
+
+            // force relogin after some time
+            if (i % 50 === 0) {
+                try {
+                    await forceReloginBug(username, password, pod, mapKv);
+                } catch (e) {
+
+                }
+            }
         }
 
-        // todo unlink temp file
-
-    }
-
-    if (isSharePod) {
+        console.log('Set map index...');
+        isUploaded = false;
+        const jsonIndex = JSON.stringify(makeIndexJson(mapIndex));
         try {
-            await forceReloginBug(username, password, pod, mapKv);
-            const sharedInfo = await fairos.podShare(pod, password);
-            console.log('Map reference', sharedInfo.data.pod_sharing_reference);
+            isUploaded = false;
+            let data = (await fairos.kvEntryPut(pod, mapKv, 'map_index', jsonIndex)).data;
+            isUploaded = data.code === 200 && data.message.indexOf('key added') > -1;
         } catch (e) {
-            logError(e, 'map reference');
+
         }
+
+        console.log(`Index upload status`, isUploaded);
+        console.log(`Uploaded with error: ${notUploadedKeys.length}, successfully: ${mapIndex.length - notUploadedKeys.length}`);
     }
 
-    console.log(`Created temp csv: ${tempCsvFile}`);
+    try {
+        await forceReloginBug(username, password, pod, mapKv);
+        const sharedInfo = await fairos.podShare(pod, password);
+        console.log('Map reference', sharedInfo.data.pod_sharing_reference);
+    } catch (e) {
+        logError(e, 'map reference');
+    }
 }
 
 run().then();

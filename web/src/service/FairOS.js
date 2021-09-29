@@ -181,6 +181,14 @@ export default class FairOS {
     }
 
     async getPodIndex(pod, password) {
+        function prepareJson(mapIndex) {
+            mapIndex = mapIndex.replace('map_index,', '');
+            mapIndex = mapIndex.replaceAll('""', '"');
+            mapIndex = mapIndex.slice(1, -1);
+
+            return mapIndex;
+        }
+
         let result = null;
         await this.podOpen(pod, password);
         const kvs = await this.kvLs(pod);
@@ -190,13 +198,13 @@ export default class FairOS {
                 let mapIndex = await this.kvGet(pod, kv.table_name, 'map_index');
                 if (mapIndex.code !== 500 && mapIndex.values) {
                     mapIndex = atob(mapIndex.values)
-                    // if (mapIndex.indexOf('map_index,') === -1) {
-                    //     continue;
-                    // }
-                    //
-                    // mapIndex = mapIndex.replace('map_index,', '');
-                    // mapIndex = mapIndex.replaceAll('""', '"');
-                    // mapIndex = mapIndex.slice(1, -1);
+
+                    if (mapIndex.indexOf('map_index,') === -1) {
+                        continue;
+                    }
+
+                    mapIndex = prepareJson(mapIndex);
+
                     mapIndex = JSON.parse(mapIndex);
                     result = {
                         pod,

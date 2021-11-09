@@ -200,7 +200,8 @@ export default function App() {
             <Route
                 {...rest}
                 render={({location}) =>
-                    (user.isLoggedIn && user.indexed) ? (
+                    // (user.isLoggedIn && user.indexed) ? (
+                    (user.isLoggedIn) ? (
                         children
                     ) : (
                         <Redirect

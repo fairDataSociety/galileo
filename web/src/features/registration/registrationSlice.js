@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import FairOS from "../../service/FairOS";
+import {getFairOSInstance} from "../../service/SharedData";
 import {updateIndexes} from "../user/userSlice";
 
 const initialState = {
@@ -13,7 +13,7 @@ const initialState = {
 export const registrationAsync = createAsyncThunk(
     'registration/registrationAsync',
     async ({username, password, mnemonic}, {dispatch}) => {
-        const api = new FairOS();
+        const api = getFairOSInstance();
         let response;
         try {
             response = await api.signup(username, password, mnemonic);

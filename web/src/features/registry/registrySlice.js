@@ -1,10 +1,11 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {fetchRegistriesList} from "./registryAPI";
-import FairOS from "../../service/FairOS";
+import {getFairOSInstance} from "../../service/SharedData";
 import * as local from "../../service/LocalData";
 import {removeRegistry} from "../../service/LocalData";
 import {getRandomInt} from "../../service/Utils";
 import {setRegistry} from "../user/userSlice";
+import {openAll} from "../../service/FairOSUtility";
 
 const initialState = {
     status: 'idle',
@@ -27,7 +28,7 @@ export const addRegistry = createAsyncThunk(
     async (data, {dispatch, getState}) => {
         const {reference, title} = data;
         const user = getState().user;
-        const api = new FairOS();
+        const api = getFairOSInstance();
         // dispatch(setStatus('pod_receive_info'));
         const info = await api.podReceiveInfo(reference);
         await api.podReceive(reference);
@@ -42,7 +43,7 @@ export const addRegistry = createAsyncThunk(
         local.addRegistry(obj);
         dispatch(setRegistry(obj));
         dispatch(getListAsync());
-        await api.openAll(user.password);
+        await openAll(user.password);
 
         return true;
     }

@@ -13,7 +13,7 @@ export async function fetchCatalogList(api, registryPodName, password) {
 
     await api.podOpen(registryPodName, password);
     await api.kvOpen(registryPodName, REGISTRY_KV_NAME);
-    let dataFromRegistry = await api.kvGet(registryPodName, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME);
+    let dataFromRegistry = (await api.kvEntryGet(registryPodName, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
     dataFromRegistry = getKvValue(dataFromRegistry);
 
     const data = {

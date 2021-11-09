@@ -30,7 +30,7 @@ jobs:
     - name: Create .env file
       run: |
           touch .env
-          echo REACT_APP_FAIROSHOST=https://fairos.fairdatasociety.org >> .env
+          echo REACT_APP_FAIROSHOST=https://fairos.fairdatasociety.org/v1/ >> .env
           echo REACT_APP_DEFAULT_REGISTRY_REFERENCE=17dede7098cbd03b20d7d3e7091dc28fbcc0a7b264537312d80cdc714c1b727278a0056af2e3372260f501b38ab9f5f291fdda95c6fc01b4c878e234873b6660 >> .env
           cat .env
     - name: Use Node.js ${{ matrix.node-version }}

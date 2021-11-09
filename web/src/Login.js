@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {login, resetStatus, selectUser, tryLogin} from "./features/user/userSlice";
-import {Redirect, useLocation} from "react-router-dom";
+import {Redirect, useLocation, useHistory} from "react-router-dom";
 
 export default function Login() {
     const dispatch = useDispatch();
@@ -9,6 +9,7 @@ export default function Login() {
     const [formPassword, setFormPassword] = useState('');
     const user = useSelector(selectUser);
     let location = useLocation();
+    const history = useHistory();
     let {from} = location.state || {from: {pathname: "/catalog"}};
 
     useEffect(() => {
@@ -19,6 +20,12 @@ export default function Login() {
     function isSubmitFormEnabled() {
         return formUsername && formPassword;
     }
+
+    // if (user.isLoggedIn && user.indexed) {
+    // if (user.isLoggedIn) {
+    //     console.log('from',from);
+    //     history.push(from.pathname);
+    // }
 
     return (
         <div className="d-flex justify-content-center">
@@ -48,8 +55,9 @@ export default function Login() {
                         </div>
 
                         <button type="submit" className="btn btn-primary" disabled={!isSubmitFormEnabled()}>
-                            {(user.status === 'login') ? <span className="spinner-border spinner-border-sm" role="status"
-                                                             aria-hidden="true"/> : ''}
+                            {(user.status === 'login') ?
+                                <span className="spinner-border spinner-border-sm" role="status"
+                                      aria-hidden="true"/> : ''}
                             &nbsp;Submit
                         </button>
                     </fieldset>

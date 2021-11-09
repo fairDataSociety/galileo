@@ -1,6 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {fetchCatalogList} from "./catalogAPI";
-import FairOS from "../../service/FairOS";
 import {
     addPodToIndex,
     getCustomMaps,
@@ -9,6 +8,7 @@ import {
     setWindowIndex
 } from "../../service/LocalData";
 import {getRandomInt} from "../../service/Utils";
+import {getFairOSInstance} from "../../service/SharedData";
 
 const initialState = {
     status: 'idle',
@@ -22,7 +22,7 @@ export const getListAsync = createAsyncThunk(
     async (nope, {dispatch, getState}) => {
         const podName = getState()?.user?.registry?.pod_name;
         const password = getState()?.user?.password;
-        const api = new FairOS();
+        const api = getFairOSInstance();
         const response = await fetchCatalogList(api, podName, password);
         // The value we return becomes the `fulfilled` action payload
         return response.data;
@@ -36,7 +36,7 @@ export const addRemoveMap = createAsyncThunk(
         console.log(podObject);
         const {pod} = podObject;
         const user = getState().user;
-        const api = new FairOS();
+        const api = getFairOSInstance();
         let isAdd = false;
         let list = [...getState().catalog.list].map(oldItem => {
             const item = {...oldItem};
@@ -103,7 +103,7 @@ export const addSharedAndSwitch = createAsyncThunk(
     async (data, {dispatch, getState}) => {
         const {reference, title, coordinates} = data;
         const user = getState().user;
-        const api = new FairOS();
+        const api = getFairOSInstance();
 
         const coordinatesPrepared = coordinates.split(',').map(item => item.trim());
         if (coordinatesPrepared.length !== 2) {

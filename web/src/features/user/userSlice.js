@@ -1,8 +1,8 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import FairOS from "../../service/FairOS";
 import {setActiveItem} from "../catalog/catalogSlice";
 import {clearOsmIndex, getOsmIndex, saveOsmIndex, setWindowIndex} from "../../service/LocalData";
 import {
+    getFairOSInstance,
     MAPS_DATA_KV,
     MAPS_DATA_KV_TABLE_POINTS,
     MAPS_DATA_POD,
@@ -10,6 +10,7 @@ import {
     REGISTRY_KV_NAME
 } from "../../service/SharedData";
 import {getKvValue} from "../../service/Utils";
+import {getMapsIndex, openAll} from "../../service/FairOSUtility";
 
 const initialState = {
     indexed: false,
@@ -28,7 +29,7 @@ const initialState = {
 async function importDefaultRegistry(dispatch, fairOS, password) {
     const reference = process.env.REACT_APP_DEFAULT_REGISTRY_REFERENCE;
     if (reference) {
-        const registryInfo = await fairOS.podReceiveInfo(reference);
+        const registryInfo = (await fairOS.podReceiveInfo(reference)).data;
         const podName = registryInfo?.pod_name;
         if (!podName) {
             console.log(`Registry info not found: ${reference}`);
@@ -38,7 +39,7 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
         await fairOS.podReceive(reference);
         await fairOS.podOpen(podName, password);
         await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
-        let dataFromRegistry = await fairOS.kvGet(registryInfo.pod_name, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME);
+        let dataFromRegistry = (await fairOS.kvEntryGet(registryInfo.pod_name, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
         dataFromRegistry = getKvValue(dataFromRegistry);
         for (let map of dataFromRegistry) {
             await fairOS.podReceive(map.reference);
@@ -59,8 +60,8 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
 export const login = createAsyncThunk(
     'user/login',
     async ({username, password}, {dispatch}) => {
-        const fairOS = new FairOS();
-        const data = await fairOS.login(username, password);
+        const fairOS = getFairOSInstance();
+        const data = (await fairOS.userLogin(username, password)).data;
         // await importDefaultRegistry(dispatch, fairOS, password);
         const isLoggedIn = data.code === 200;
         if (!isLoggedIn) {
@@ -88,11 +89,11 @@ export const updateIndexes = createAsyncThunk(
     async ({password}, {dispatch, getState}) => {
         dispatch(downloadMarkers());
         dispatch(setIndexed(false));
-        const fairOS = new FairOS();
+        const fairOS = getFairOSInstance();
         const isImported = await importDefaultRegistry(dispatch, fairOS, password);
         // if (isImported) {
-        await fairOS.openAll(password);
-        const index = await fairOS.getMapsIndex(password);
+        await openAll(password);
+        const index = await getMapsIndex(password);
         saveOsmIndex(index);
         setWindowIndex(getOsmIndex());
         // }
@@ -107,12 +108,12 @@ export const saveMarkers = createAsyncThunk(
     'user/saveMarkers',
     async ({markers}, {dispatch, getState}) => {
         const user = getState().user;
-        const fairOS = new FairOS();
+        const fairOS = getFairOSInstance();
         await fairOS.podNew(MAPS_DATA_POD, user.password);
         await fairOS.podOpen(MAPS_DATA_POD, user.password);
         await fairOS.kvNew(MAPS_DATA_POD, MAPS_DATA_KV);
         await fairOS.kvOpen(MAPS_DATA_POD, MAPS_DATA_KV);
-        await fairOS.kvPut(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS, JSON.stringify(markers));
+        await fairOS.kvEntryPut(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS, JSON.stringify(markers));
         // await fairOS.fileDelete(MAPS_DATA_POD, '/info.json');
         // await fairOS.fileUpload(MAPS_DATA_POD, 'info.json', JSON.stringify(markers));
         return true;
@@ -123,17 +124,22 @@ export const downloadMarkers = createAsyncThunk(
     'user/downloadMarkers',
     async (some, {dispatch, getState}) => {
         const user = getState().user;
-        const fairOS = new FairOS();
+        const fairOS = getFairOSInstance();
         try {
-            await fairOS.podNew(MAPS_DATA_POD, user.password);
+            try {
+                await fairOS.podNew(MAPS_DATA_POD, user.password);
+            } catch (e) {
+
+            }
+
             await fairOS.podOpen(MAPS_DATA_POD, user.password);
             await fairOS.kvOpen(MAPS_DATA_POD, MAPS_DATA_KV);
-            let data = await fairOS.kvGet(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS);
+            let data = (await fairOS.kvEntryGet(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS)).data;
             data = getKvValue(data);
             // const dir = await fairOS.dirLs(MAPS_DATA_POD, '/');
             // console.log(dir);
             // const data = await fairOS.fileDownload(MAPS_DATA_POD, '/', 'info.json');
-            console.log('downloaded markers', data);
+            // console.log('downloaded markers', data);
             if (data && Array.isArray(data)) {
                 dispatch(setMarkers(data));
             }
@@ -148,7 +154,7 @@ export const downloadMarkers = createAsyncThunk(
 export const tryLogin = createAsyncThunk(
     'user/tryLogin',
     async (params, {dispatch, getState}) => {
-        const fairOS = new FairOS();
+        const fairOS = getFairOSInstance();
         const username = localStorage.getItem('osm_username');
         const password = localStorage.getItem('osm_password');
         // let activeMap = localStorage.getItem('osm_active');
@@ -156,7 +162,7 @@ export const tryLogin = createAsyncThunk(
             return false;
         }
 
-        const data = await fairOS.login(username, password);
+        const data = (await fairOS.userLogin(username, password)).data;
         // await importDefaultRegistry(dispatch, fairOS, password);
         const isLoggedIn = data.code === 200;
         // if (isLoggedIn) {

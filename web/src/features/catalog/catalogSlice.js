@@ -162,6 +162,9 @@ export const catalogSlice = createSlice({
                 state.status = 'idle';
                 state.list = action.payload;
             })
+            .addCase(getListAsync.rejected, (state, action) => {
+                state.status = 'rejected';
+            })
             // .addCase(addRemoveMap.pending, (state) => {
             //     state.status = 'adding';
             // })

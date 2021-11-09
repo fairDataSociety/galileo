@@ -3,6 +3,10 @@ import {REGISTRY_KV_KEY_NAME, REGISTRY_KV_NAME} from "../../service/SharedData";
 import {getKvValue} from "../../service/Utils";
 
 export async function fetchCatalogList(api, registryPodName, password) {
+    if (!(registryPodName && password)) {
+        throw new Error(`Empty params for fetchCatalogList`);
+    }
+
     let customMaps = getCustomMaps();
     const osmIndex = getOsmIndex();
 

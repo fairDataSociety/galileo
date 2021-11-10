@@ -92,7 +92,11 @@ export const updateIndexes = createAsyncThunk(
         dispatch(setIndexStatus('loading'));
         dispatch(setIndexed(false));
         const fairOS = getFairOSInstance();
-        const isImported = await importDefaultRegistry(dispatch, fairOS, password);
+        try {
+            await importDefaultRegistry(dispatch, fairOS, password);
+        } catch (e) {
+
+        }
         // if (isImported) {
         await openAll(password);
         const index = await getMapsIndex(password);

@@ -4,12 +4,27 @@ export async function openAll(password) {
     const fairos = getFairOSInstance();
     const pods = (await fairos.podLs()).data;
     for (let pod of [...pods.shared_pod_name, ...pods.pod_name]) {
-        await fairos.podOpen(pod, password);
-        const kvs = (await fairos.kvLs(pod)).data;
-        if (kvs.Tables) {
+        try {
+            await fairos.podOpen(pod, password);
+        } catch (e) {
+
+        }
+
+        let kvs;
+        try {
+            kvs = (await fairos.kvLs(pod)).data;
+        } catch (e) {
+
+        }
+
+        if (kvs?.Tables) {
             for (let kv of kvs.Tables) {
-                await fairos.kvOpen(pod, kv.table_name);
-                // await this.kvCount(pod, kv.table_name);
+                try {
+                    await fairos.kvOpen(pod, kv.table_name);
+                    // await this.kvCount(pod, kv.table_name);
+                } catch (e) {
+
+                }
             }
         }
     }
@@ -47,27 +62,36 @@ export async function getPodIndex(pod, password) {
     }
 
     let result = null;
-    await fairos.podOpen(pod, password);
+    try {
+        await fairos.podOpen(pod, password);
+    } catch (e) {
+
+    }
+
     const kvs = (await fairos.kvLs(pod)).data;
     if (kvs.Tables) {
         for (let kv of kvs.Tables) {
             await fairos.kvOpen(pod, kv.table_name);
-            let mapIndex = (await fairos.kvEntryGet(pod, kv.table_name, 'map_index')).data;
-            if (mapIndex.code !== 500 && mapIndex.values) {
-                mapIndex = atob(mapIndex.values)
+            try {
+                let mapIndex = (await fairos.kvEntryGet(pod, kv.table_name, 'map_index')).data;
+                if (mapIndex.code !== 500 && mapIndex.values) {
+                    mapIndex = atob(mapIndex.values)
 
-                if (mapIndex.indexOf('map_index,') === -1) {
-                    continue;
+                    if (mapIndex.indexOf('map_index,') === -1) {
+                        continue;
+                    }
+
+                    mapIndex = prepareJson(mapIndex);
+
+                    mapIndex = JSON.parse(mapIndex);
+                    result = {
+                        pod,
+                        kv: kv.table_name,
+                        index: mapIndex
+                    };
                 }
+            } catch (e) {
 
-                mapIndex = prepareJson(mapIndex);
-
-                mapIndex = JSON.parse(mapIndex);
-                result = {
-                    pod,
-                    kv: kv.table_name,
-                    index: mapIndex
-                };
             }
         }
     }

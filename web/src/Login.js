@@ -29,7 +29,7 @@ export default function Login() {
 
     return (
         <div className="d-flex justify-content-center">
-            {(user.isLoggedIn && user.indexed) ? <Redirect to={from}/> : ''}
+            {(user.isLoggedIn) ? <Redirect to={from}/> : ''}
             <div className="col-sm-9 col-md-6">
                 <h3>Login with FairOS credentials</h3>
                 <form onSubmit={e => {

@@ -230,7 +230,10 @@ export default function App() {
                     </Route>
 
                     <PrivateRoute path="/map">
-                        {displayMap}
+                        {user.indexStatus === 'ready' && displayMap}
+                        {user.indexStatus === 'rejected' &&
+                        <p>Maps not found. <Link to="/catalog">Add</Link> some maps to your account.</p>}
+                        {user.indexStatus === 'loading' && <p>Loadings maps info...</p>}
                     </PrivateRoute>
 
                     <Route path="/about">

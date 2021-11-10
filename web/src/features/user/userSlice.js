@@ -14,6 +14,7 @@ import {getMapsIndex, openAll} from "../../service/FairOSUtility";
 
 const initialState = {
     indexed: false,
+    indexStatus: '',
     status: 'idle',
     statusText: '',
     isLoggedIn: false,
@@ -88,6 +89,7 @@ export const updateIndexes = createAsyncThunk(
     'user/updateIndexes',
     async ({password}, {dispatch, getState}) => {
         dispatch(downloadMarkers());
+        dispatch(setIndexStatus('loading'));
         dispatch(setIndexed(false));
         const fairOS = getFairOSInstance();
         const isImported = await importDefaultRegistry(dispatch, fairOS, password);
@@ -99,6 +101,7 @@ export const updateIndexes = createAsyncThunk(
         // }
 
         dispatch(setIndexed(true));
+        dispatch(setIndexStatus('ready'));
 
         return true;
     }
@@ -209,6 +212,9 @@ export const userSlice = createSlice({
         setIndexed: (state, action) => {
             state.indexed = action.payload;
         },
+        setIndexStatus: (state, action) => {
+            state.indexStatus = action.payload;
+        },
         setMarkers: (state, action) => {
             state.markers = action.payload;
         },
@@ -229,6 +235,10 @@ export const userSlice = createSlice({
             .addCase(login.rejected, (state, action) => {
                 state.status = 'error';
                 state.statusText = action.error.message;
+            })
+
+            .addCase(updateIndexes.rejected, (state, action) => {
+                state.indexStatus = 'rejected';
             })
 
             .addCase(tryLogin.fulfilled, (state, action) => {
@@ -252,6 +262,7 @@ export const {
     fullReset,
     setRegistry,
     setIndexed,
+    setIndexStatus,
     setMarkers,
     setIsMarkerActive
 } = userSlice.actions;

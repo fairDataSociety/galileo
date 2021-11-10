@@ -21,13 +21,13 @@ export default function Header({onLogout}) {
                             <Link to="/">Home</Link>
                         </li>
 
-                        <li className={path === '/catalog' ? 'menu-active' : ''}>
+                        {user.isLoggedIn && <li className={path === '/catalog' ? 'menu-active' : ''}>
                             <Link to="/catalog">Maps catalog</Link>
-                        </li>
+                        </li>}
 
-                        <li className={path === '/registry' ? 'menu-active' : ''}>
+                        {user.isLoggedIn && <li className={path === '/registry' ? 'menu-active' : ''}>
                             <Link to="/registry">Registries</Link>
-                        </li>
+                        </li>}
 
                         <li className={path === '/about' ? 'menu-active' : ''}>
                             <Link to="/about">About</Link>

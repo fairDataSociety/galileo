@@ -30,9 +30,9 @@
 
 #### Tile files examples
 
-Switzerland: https://testeron.pro/osm/tiles_sw.zip
+Switzerland: https://old.testeron.pro/osm/tiles_sw.zip
 
-Czech Republic: https://testeron.pro/osm/tiles_cz.zip
+Czech Republic: https://old.testeron.pro/osm/tiles_cz.zip
 
 #### Links
 

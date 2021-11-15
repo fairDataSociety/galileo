@@ -13,9 +13,10 @@ export function fetchRegistriesList() {
                 const data = {
                     data: [
                         {
-                            id: 1,
+                            id: process.env.REACT_APP_DEFAULT_REGISTRY_REFERENCE,
                             title: "FDS Registry",
-                            reference: "____"
+                            type: 'default',
+                            reference: process.env.REACT_APP_DEFAULT_REGISTRY_REFERENCE
                         },
                         ...customRegistries
                     ]

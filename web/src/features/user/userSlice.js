@@ -30,30 +30,30 @@ const initialState = {
 async function importDefaultRegistry(dispatch, fairOS, password) {
     const reference = process.env.REACT_APP_DEFAULT_REGISTRY_REFERENCE;
     if (reference) {
-        const registryInfo = (await fairOS.podReceiveInfo(reference)).data;
-        const podName = registryInfo?.pod_name;
-        if (!podName) {
-            console.log(`Registry info not found: ${reference}`);
-            return false;
-        }
-
-        await fairOS.podReceive(reference);
-        await fairOS.podOpen(podName, password);
-        await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
-        let dataFromRegistry = (await fairOS.kvEntryGet(registryInfo.pod_name, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
-        dataFromRegistry = getKvValue(dataFromRegistry);
-        for (let map of dataFromRegistry) {
-            await fairOS.podReceive(map.reference);
-        }
-
-        dispatch(setRegistry({
-            reference,
-            pod_name: registryInfo.pod_name
-        }));
-    } else {
         console.error('REACT_APP_DEFAULT_REGISTRY_REFERENCE is not defined');
         return false;
     }
+
+    const registryInfo = (await fairOS.podReceiveInfo(reference)).data;
+    const podName = registryInfo?.pod_name;
+    if (!podName) {
+        console.log(`Registry info not found: ${reference}`);
+        return false;
+    }
+
+    await fairOS.podReceive(reference);
+    await fairOS.podOpen(podName, password);
+    await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
+    let dataFromRegistry = (await fairOS.kvEntryGet(registryInfo.pod_name, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
+    dataFromRegistry = getKvValue(dataFromRegistry);
+    for (let map of dataFromRegistry) {
+        await fairOS.podReceive(map.reference);
+    }
+
+    dispatch(setRegistry({
+        reference,
+        pod_name: registryInfo.pod_name
+    }));
 
     return true;
 }

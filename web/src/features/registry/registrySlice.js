@@ -37,9 +37,8 @@ export const addRegistry = createAsyncThunk(
             throw new Error("Pod information not found");
         }
 
-        // await api.podOpen(pod, user.password);
-        const obj = {id: getRandomInt(10000, 100000), title, pod_name: pod, reference};
-        console.log(obj)
+        const obj = {id: reference, title, pod_name: pod, reference};
+        // todo check if exists in local storage and state, catch is already exists
         local.addRegistry(obj);
         dispatch(setRegistry(obj));
         dispatch(getListAsync());

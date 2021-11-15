@@ -125,7 +125,11 @@ export default function Registry() {
             <tbody>
 
             {state.list.map(item => <tr key={item.title}>
-                <td>{item.title}</td>
+                <td>
+                    {item.type === 'default' ?
+                        <span className="badge badge-success">Default</span> :
+                        <span className="badge badge-light">Custom</span>}
+                    &nbsp;{item.title}</td>
                 <td>
                     {(user.isLoggedIn) &&
                     <button className="btn btn-success btn-sm"

@@ -1,9 +1,13 @@
-FROM node:16
+FROM node:16 as builder
 
-WORKDIR /usr/src/osm_bee_app/web
-COPY package*.json ./
-RUN yarn install
-COPY . .
-EXPOSE 3000
+WORKDIR /app
+COPY web/package*.json ./
+RUN yarn
+COPY web .
+RUN yarn build
 
-CMD ["yarn", "start"]
+FROM nginx:1.21.1-alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

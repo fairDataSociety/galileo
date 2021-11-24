@@ -1,20 +1,12 @@
-### Configure Galileo from scratch (manual & Docker)
+### Run Galileo from scratch (manual & Docker)
 
 https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation.md
 
-### How to test map with local FairOS?
-
-1) Follow "How to create and share your own map?" instruction
-
-2) Go to ```/web/``` folder, copy ```.example.env``` => ```.env```, ```public/example.scene.yaml``` => ```public/scene.yaml```, run ```yarn```, ```yarn start```
-
-3) Sign in with your FairOS credentials on web project
-
 ### How to create and share your own map?
 
-1) Start Bee node (only 0.6.2 version works correctly at this moment)
+1) Start supported version (by FairOS-dfs) of Bee node
 
-2) Start ```dfs server``` (https://github.com/fairDataSociety/fairOS-dfs, 0.6.2)
+2) Start dfs server https://github.com/fairDataSociety/fairOS-dfs
 
 3) Download GeoJSON files of specific region with script: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813 or use other sources to make GeoJSON files: ```osm_tiles_downloader.py 46.06902628310932 14.507817723324576```
 

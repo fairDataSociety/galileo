@@ -10,8 +10,8 @@ let fairOSInstance = null;
 
 export function getFairOSInstance() {
     let config = window._env.loaded ? window._env : process.env;
-    console.log('Using window._env - ', window._env.loaded);
     if (!fairOSInstance) {
+        console.log('Using window._env - ', window._env.loaded);
         fairOSInstance = new FairOS(config.REACT_APP_FAIROSHOST);
     }
 

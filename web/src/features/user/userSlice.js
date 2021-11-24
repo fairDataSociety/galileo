@@ -28,7 +28,8 @@ const initialState = {
 };
 
 async function importDefaultRegistry(dispatch, fairOS, password) {
-    const reference = process.env.REACT_APP_DEFAULT_REGISTRY_REFERENCE;
+    let config = window._env.loaded ? window._env : process.env;
+    const reference = config.REACT_APP_DEFAULT_REGISTRY_REFERENCE;
     if (!reference) {
         console.error('REACT_APP_DEFAULT_REGISTRY_REFERENCE is not defined');
         return false;

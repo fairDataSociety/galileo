@@ -14,12 +14,8 @@ const password = process.env.FAIROS_PASSWORD;
 const pod = process.env.FAIROS_POD;
 const mapKv = process.env.FAIROS_MAP_KV;
 const mapPath = process.env.MAP_PATH;
-let command = process.argv[2];
+const command = process.argv[2];
 const commandParam = process.argv[3];
-
-if(!command) {
-    command = '';
-}
 
 const NOT_UPLOADED_IDS_PATH = './not_uploaded_ids.txt';
 let retryUpload = [];

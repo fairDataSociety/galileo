@@ -19,7 +19,9 @@ https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation
    5) `FAIROS_MAP_KV` - key-value name where will be stored map data
    6) `MAP_PATH` - full path to folder with files which downloaded above
 
-6) Go to scripts folder `cd scripts` and run upload script `node upload-map.js`
+Install nodejs https://github.com/nodesource/distributions/blob/master/README.md
+
+6) Go to scripts folder `cd scripts`, run `npm i` and run upload script `node upload-map.js`
 7) Wait while script will upload all data and return Map reference. Share you map reference with Galileo users
 
 ### Other

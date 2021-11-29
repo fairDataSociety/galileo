@@ -8,10 +8,7 @@ https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation
 
 2) Start dfs server https://github.com/fairDataSociety/fairOS-dfs
 
-3) Download GeoJSON files of specific region with script: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813 or use other sources to make 
-Install python dependency: ```pip install urllib2```
-
-GeoJSON files: ```python3 osm_tiles_downloader.py 46.06902628310932 14.507817723324576```
+3) Download GeoJSON files of specific region with script: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813 or use other sources to make GeoJSON files: ```python3 osm_tiles_downloader.py 46.06902628310932 14.507817723324576```
 
 4) Copy `/scripts/example.env` to `/scripts/.env`
 5) Define params:

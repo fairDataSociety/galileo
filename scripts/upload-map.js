@@ -155,10 +155,10 @@ async function run() {
     const isUploadCsv = command === '' || command === 'uploadcsv';
     const isSharePod = command === '' || command === 'ref';
 
-    if (isUploadCsv && !commandParam) {
-        console.log('For upload csv file - pass file name');
-        process.exit();
-    }
+    // if (isUploadCsv && !commandParam) {
+    //     console.log('For upload csv file - pass file name');
+    //     process.exit();
+    // }
 
     if (isCreateCsv) {
         fs.appendFileSync(tempCsvFile, `Key,Value\r\n`)

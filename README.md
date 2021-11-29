@@ -8,7 +8,7 @@ https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation
 
 2) Start dfs server https://github.com/fairDataSociety/fairOS-dfs
 
-3) Download GeoJSON files of specific region with script: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813 or use other sources to make GeoJSON files: ```osm_tiles_downloader.py 46.06902628310932 14.507817723324576```
+3) Download GeoJSON files of specific region with script: https://gist.github.com/IgorShadurin/afdc91d2f21cc8154e24da02d1805813 or use other sources to make GeoJSON files: ```python3 osm_tiles_downloader.py 46.06902628310932 14.507817723324576```
 
 4) Copy `/scripts/example.env` to `/scripts/.env`
 5) Define params:
@@ -19,7 +19,9 @@ https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation
    5) `FAIROS_MAP_KV` - key-value name where will be stored map data
    6) `MAP_PATH` - full path to folder with files which downloaded above
 
-6) Go to scripts folder `cd scripts` and run upload script `node upload-map.js`
+Install nodejs https://github.com/nodesource/distributions/blob/master/README.md
+
+6) Go to scripts folder `cd scripts`, run `npm i` and run upload script `node upload-map.js`
 7) Wait while script will upload all data and return Map reference. Share you map reference with Galileo users
 
 ### Other

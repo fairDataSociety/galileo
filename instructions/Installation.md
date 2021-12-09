@@ -36,7 +36,9 @@ fill sources.tilezen.url with your FairOS API url template, example `https://fai
 
 `cd ..`
 
-`yarn start`
+`yarn start` to start with built-in server or
+
+`yarn build` to build production version
 
 ## Run docker build
 

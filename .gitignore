@@ -1,2 +1,3 @@
 *.pbf
 .env
+env.js

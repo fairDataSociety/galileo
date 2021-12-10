@@ -151,14 +151,14 @@ async function run() {
     console.log('Opening key-value...');
     await fairos.kvOpen(pod, mapKv);
 
-    const isCreateCsv = command === '' || command === 'createcsv';
-    const isUploadCsv = command === '' || command === 'uploadcsv';
-    const isSharePod = command === '' || command === 'ref';
+    const isCreateCsv = (!command) || command === 'createcsv';
+    const isUploadCsv = (!command) || command === 'uploadcsv';
+    const isSharePod = (!command) || command === 'ref';
 
-    if (isUploadCsv && !commandParam) {
-        console.log('For upload csv file - pass file name');
-        process.exit();
-    }
+    // if (isUploadCsv && !commandParam) {
+    //     console.log('For upload csv file - pass file name');
+    //     process.exit();
+    // }
 
     if (isCreateCsv) {
         fs.appendFileSync(tempCsvFile, `Key,Value\r\n`)

@@ -16,7 +16,7 @@ export const registrationAsync = createAsyncThunk(
         const api = getFairOSInstance();
         let response;
         try {
-            response = await api.signup(username, password, mnemonic);
+            response = (await api.userSignup(username, password, mnemonic)).data;
         } catch (e) {
             throw new Error(`${e.message}. Please, check your internet connection`);
         }

@@ -30,8 +30,14 @@ export const addRegistry = createAsyncThunk(
         const user = getState().user;
         const api = getFairOSInstance();
         // dispatch(setStatus('pod_receive_info'));
-        const info = await api.podReceiveInfo(reference);
-        await api.podReceive(reference);
+        let info = null;
+        try {
+            info = (await api.podReceiveInfo(reference));
+            await api.podReceive(reference);
+        } catch (e) {
+
+        }
+
         const pod = info?.pod_name;
         if (!pod) {
             throw new Error("Pod information not found");

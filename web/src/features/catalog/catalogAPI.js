@@ -3,10 +3,6 @@ import {REGISTRY_KV_KEY_NAME, REGISTRY_KV_NAME} from "../../service/SharedData";
 import {getKvValue} from "../../service/Utils";
 
 export async function fetchCatalogList(api, registryPodName, password) {
-    if (!(registryPodName && password)) {
-        throw new Error(`Empty params for fetchCatalogList`);
-    }
-
     let customMaps = getCustomMaps();
     const osmIndex = getOsmIndex();
 
@@ -15,29 +11,21 @@ export async function fetchCatalogList(api, registryPodName, password) {
         return item;
     });
 
-    await api.podOpen(registryPodName, password);
-    await api.kvOpen(registryPodName, REGISTRY_KV_NAME);
-    let dataFromRegistry = (await api.kvEntryGet(registryPodName, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
-    dataFromRegistry = getKvValue(dataFromRegistry);
+    let dataFromRegistry = [];
+    if (registryPodName && password) {
+        try {
+            await api.podOpen(registryPodName, password);
+        } catch (e) {
+
+        }
+
+        await api.kvOpen(registryPodName, REGISTRY_KV_NAME);
+        dataFromRegistry = (await api.kvEntryGet(registryPodName, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
+        dataFromRegistry = getKvValue(dataFromRegistry);
+    }
 
     const data = {
         data: [
-            // {
-            //     id: 1,
-            //     title: "Switzerland [test]",
-            //     pod: "map_switzerland_sdancer",
-            //     kv: "map",
-            //     coordinates: [46.947978, 7.440386],
-            //     reference: "eebc7bf689f76c9889fc1fd3f6b1c448168b121493359871c13624a2459ab583775dee8b7665eb3ee90ebabbad21026622bc5334870809738610c86beb1c5532"
-            // },
-            // {
-            //     id: 2,
-            //     title: "Czech Republic [test]",
-            //     pod: "map_czech_test",
-            //     kv: "map",
-            //     coordinates: [50.080310, 14.428974],
-            //     reference: "e6fd12bd7aafe87cb6570050ed6103727c7909818922cf8dbb49c4d5ac2a3f4dcc8e86a860bf1a00e8e6e9a2e1383a2fc8ae5a8e441184a2ebf194dbdc0d1f72"
-            // },
             ...dataFromRegistry,
             ...customMaps
         ]

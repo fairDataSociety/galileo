@@ -18,7 +18,7 @@ export default function Catalog() {
     const [showAddMap, setShowAddMap] = useState(false);
     const [mapReference, setMapReference] = useState('');
     const [mapTitle, setMapTitle] = useState('');
-    const [mapCoordinates, setMapCoordinates] = useState('');
+    const [mapCoordinates, setMapCoordinates] = useState('46.947978, 7.440386');
     const [currentItem, setCurrentItem] = useState({});
 
     const catalog = useSelector(selectCatalog);
@@ -27,12 +27,11 @@ export default function Catalog() {
     const actionsDisabled = !['idle', 'error'].includes(catalog.status);
 
     const isAddMapDisabled = () => {
-        return !mapReference ||
-            // mapReference.length !== 128 ||
-            mapReference.length !== 64 ||
-            !mapTitle ||
-            !mapCoordinates ||
-            mapCoordinates.split(',').length !== 2;
+        return !(mapReference &&
+            (mapReference.length === 128 || mapReference.length === 64) &&
+            mapTitle &&
+            mapCoordinates &&
+            mapCoordinates.split(',').length === 2);
     }
 
     useEffect(() => {
@@ -62,7 +61,7 @@ export default function Catalog() {
         <Modal show={showAddMap} onHide={_ => setShowAddMap(false)} onShow={_ => {
             setMapReference('');
             setMapTitle('');
-            setMapCoordinates('');
+            // setMapCoordinates('');
         }}>
             <Modal.Header closeButton>
                 <Modal.Title>Add map</Modal.Title>
@@ -90,13 +89,13 @@ export default function Catalog() {
                                    value={mapTitle}/>
                         </div>
 
-                        <div className="mb-3">
-                            <label className="form-label">Initial coordinates</label>
-                            <input type="text" className="form-control"
-                                   placeholder="46.947978, 7.440386"
-                                   onChange={e => setMapCoordinates(e.target.value)}
-                                   value={mapCoordinates}/>
-                        </div>
+                        {/*<div className="mb-3">*/}
+                        {/*    <label className="form-label">Initial coordinates</label>*/}
+                        {/*    <input type="text" className="form-control"*/}
+                        {/*           placeholder="46.947978, 7.440386"*/}
+                        {/*           onChange={e => setMapCoordinates(e.target.value)}*/}
+                        {/*           value={mapCoordinates}/>*/}
+                        {/*</div>*/}
                     </fieldset>
                 </Modal.Body>
                 <Modal.Footer>

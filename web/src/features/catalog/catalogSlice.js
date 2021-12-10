@@ -111,15 +111,25 @@ export const addSharedAndSwitch = createAsyncThunk(
         }
 
         dispatch(setStatus('pod_receive_info'));
-        const info = await api.podReceiveInfo(reference);
+        const info = (await api.podReceiveInfo(reference)).data;
         const pod = info?.pod_name;
         if (!pod) {
             throw new Error("Pod information not found");
         }
 
-        await api.podReceive(reference);
-        await api.podOpen(pod, user.password);
-        const kvs = await api.kvLs(pod);
+        try {
+            await api.podReceive(reference);
+        } catch (e) {
+
+        }
+
+        try {
+            await api.podOpen(pod, user.password);
+        } catch (e) {
+
+        }
+
+        const kvs = (await api.kvLs(pod)).data;
         if (!kvs || !kvs.Tables || !kvs.Tables.length) {
             throw new Error("Key-value not found");
         }

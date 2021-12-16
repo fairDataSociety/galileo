@@ -53,7 +53,8 @@ app.get('/v1/kv/entry/get', cors(corsOptionsDelegate), async (req, res) => {
 app.get('/get-pods', cors(corsOptionsDelegate), async (req, res) => {
     const dirs = fs.readdirSync(mapPath).filter(item => !item.startsWith('.'));
     res.send({
-        shared_pod_name: dirs
+        shared_pod_name: dirs,
+        pod_name: []
     });
 });
 

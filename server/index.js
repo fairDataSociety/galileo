@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const sanitize = require('sanitize-filename');
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -26,8 +27,13 @@ const corsOptionsDelegate = function (req, callback) {
 };
 
 app.get('/v1/kv/entry/get', cors(corsOptionsDelegate), async (req, res) => {
-    const {pod_name, table_name, key} = req.query;
-    const [z, x, y] = key?.split('_');
+    let {pod_name, table_name, key} = req.query;
+    let [z, x, y] = key?.split('_');
+    table_name = sanitize(table_name);
+    pod_name = sanitize(pod_name);
+    z = sanitize(z);
+    x = sanitize(x);
+    y = sanitize(y);
     if (!(pod_name && table_name && key && z && x && y)) {
         res.status(500)
         res.send({result: 'error', text: `Incorrect params: ${pod_name}, ${table_name}, ${key}`});
@@ -42,6 +48,34 @@ app.get('/v1/kv/entry/get', cors(corsOptionsDelegate), async (req, res) => {
         res.status(500)
         res.send({result: 'error', text: 'File not found'});
     }
+});
+
+app.get('/get-pods', cors(corsOptionsDelegate), async (req, res) => {
+    const dirs = fs.readdirSync(mapPath).filter(item => !item.startsWith('.'));
+    res.send({
+        shared_pod_name: dirs
+    });
+});
+
+app.get('/get-pod-index', cors(corsOptionsDelegate), async (req, res) => {
+    let {pod, table_name} = req.query;
+    pod = sanitize(pod);
+    table_name = sanitize(table_name);
+
+    if (!(pod && table_name)) {
+        res.status(500)
+        res.send({result: 'error', text: `Incorrect params: ${pod}, ${table_name}`});
+        return;
+    }
+
+    const path = `${mapPath}${pod}/${table_name}/map_index`;
+    if (!fs.existsSync(path)) {
+        res.status(500)
+        res.send({result: 'error', text: `map_index file not found`});
+        return;
+    }
+
+    res.send(fs.readFileSync(path));
 });
 
 app.listen(port, () => console.log(`Started server at http://localhost:${port}`));

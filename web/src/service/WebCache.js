@@ -6,11 +6,12 @@ export default class WebCache {
     }
 
     async getPods() {
-        const data= await fetch(`${this.url}/get-pods`);
+        const data = await fetch(`${this.url}/get-pods`);
         return await data.json();
     }
 
-    getPodIndex(pod, tableName) {
-        return fetch(`${this.url}/get-pod-index?pod=${pod}&table_name=${tableName}`).then(data => data.json());
+    async getPodIndex(pod, tableName) {
+        const data = await fetch(`${this.url}/get-pod-index?pod=${pod}&table_name=${tableName}`);
+        return await data.json();
     }
 }

@@ -125,7 +125,6 @@ export const updateIndexes = createAsyncThunk(
         }
 
         const index = await getMapsIndex(password, isPublic);
-        console.log(999);
         saveOsmIndex(index);
         setWindowIndex(getOsmIndex());
 

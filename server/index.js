@@ -50,7 +50,7 @@ app.get('/v1/kv/entry/get', cors(corsOptionsDelegate), async (req, res) => {
     }
 });
 
-app.get('/get-pods', cors(corsOptionsDelegate), async (req, res) => {
+app.get('/get-pods', async (req, res) => {
     const dirs = fs.readdirSync(mapPath).filter(item => !item.startsWith('.'));
     res.send({
         shared_pod_name: dirs,
@@ -58,7 +58,7 @@ app.get('/get-pods', cors(corsOptionsDelegate), async (req, res) => {
     });
 });
 
-app.get('/get-pod-index', cors(corsOptionsDelegate), async (req, res) => {
+app.get('/get-pod-index', async (req, res) => {
     let {pod, table_name} = req.query;
     pod = sanitize(pod);
     table_name = sanitize(table_name);

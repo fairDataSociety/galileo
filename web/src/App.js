@@ -154,7 +154,7 @@ export default function App() {
     const dispatch = useDispatch();
     const location = useLocation();
     const path = location.pathname;
-    const displayMap = useMemo(
+    const displayPrivateMap = useMemo(
         () => {
             return <>
                 {/*<MarkerControls/>*/}
@@ -180,6 +180,31 @@ export default function App() {
 
                     {/*{user.markers.map(item => <DraggableMarker key={item.coordinates} item={item}/>)}*/}
                     <MyLayer dispatch={dispatch} initMarkers={user.markers}/>
+                </MapContainer>
+            </>
+        },
+        [catalog.activeItem,
+            user.markers
+        ],
+    );
+    const displayPublicMap = useMemo(
+        () => {
+            return <>
+                <MapContainer
+                    whenCreated={async map => {
+                        const tangramLayer = window.Tangram.leafletLayer({
+                            scene: 'public-scene.yaml',
+                            attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors'
+                        });
+
+                        tangramLayer.addTo(map);
+                    }}
+                    center={[46.948919, 7.440979]}
+                    zoom={3}
+                    scrollWheelZoom={false}>
+
+                    {/*{user.markers.map(item => <DraggableMarker key={item.coordinates} item={item}/>)}*/}
+                    {/*<MyLayer dispatch={dispatch} initMarkers={user.markers}/>*/}
                 </MapContainer>
             </>
         },
@@ -216,6 +241,7 @@ export default function App() {
         );
     }
 
+    console.log('user.indexStatus',user)
     return (
         <>
             <Header onLogout={_ => {
@@ -229,12 +255,12 @@ export default function App() {
                         <Login/>
                     </Route>
 
-                    <PrivateRoute path="/map">
-                        {user.indexStatus === 'ready' && displayMap}
+                    <Route path="/map">
+                        {user.indexStatus === 'ready' && (user.isLoggedIn ? displayPrivateMap : displayPublicMap)}
                         {user.indexStatus === 'rejected' &&
-                        <p>Maps not found. <Link to="/catalog">Add</Link> some maps to your account.</p>}
-                        {user.indexStatus === 'loading' && <p>Loadings maps info...</p>}
-                    </PrivateRoute>
+                            <p>Maps not found. <Link to="/catalog">Add</Link> some maps to your account.</p>}
+                        {user.indexStatus === 'loading' && <p>Loading maps info...</p>}
+                    </Route>
 
                     <Route path="/about">
                         <About/>

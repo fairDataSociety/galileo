@@ -1,4 +1,4 @@
-import {getFairOSInstance} from "./SharedData";
+import {getFairOSInstance, getWebCacheInstance} from "./SharedData";
 
 export async function openAll(password) {
     const fairos = getFairOSInstance();
@@ -30,15 +30,30 @@ export async function openAll(password) {
     }
 }
 
-export async function getMapsIndex(password) {
-    const fairos = getFairOSInstance();
+export async function getMapsIndex(password, isPublic) {
     let index = {
         pods: [],
         // urlNotFound: 'https://sometileurl.com'
     };
-    const pods = (await fairos.podLs()).data;
+
+    let pods = [];
+    if (isPublic) {
+        const webCache = getWebCacheInstance();
+        pods = await webCache.getPods();
+        console.log(pods)
+    } else {
+        const fairos = getFairOSInstance();
+        pods = (await fairos.podLs()).data;
+    }
+
     for (let pod of [...pods.shared_pod_name, ...pods.pod_name]) {
-        const mapIndex = await getPodIndex(pod, password);
+        let mapIndex;
+        if (isPublic) {
+            mapIndex = await getPodIndexWebCache(pod);
+        } else {
+            mapIndex = await getPodIndex(pod, password);
+        }
+
         if (mapIndex) {
             index.pods.push(mapIndex);
         }
@@ -48,6 +63,16 @@ export async function getMapsIndex(password) {
     // await this.kvLoadCsv('czech_shadurin_map', 'map', localStorage.getItem('osm_cz'));
 
     return index;
+}
+
+export async function getPodIndexWebCache(pod, tableName = 'map') {
+    const webCache = getWebCacheInstance();
+    const index = await webCache.getPodIndex(pod, tableName);
+    return {
+        pod,
+        kv: tableName,
+        index
+    };
 }
 
 export async function getPodIndex(pod, password) {

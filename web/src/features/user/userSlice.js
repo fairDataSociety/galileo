@@ -107,22 +107,27 @@ export const login = createAsyncThunk(
 
 export const updateIndexes = createAsyncThunk(
     'user/updateIndexes',
-    async ({password}, {dispatch, getState}) => {
-        dispatch(downloadMarkers());
+    async (data, {dispatch, getState}) => {
+        console.log('updateIndexes data', data);
+        const {password, isPublic} = data;
         dispatch(setIndexStatus('loading'));
         dispatch(setIndexed(false));
-        const fairOS = getFairOSInstance();
-        try {
-            await importDefaultRegistry(dispatch, fairOS, password);
-        } catch (e) {
+        if (!isPublic) {
+            dispatch(downloadMarkers());
+            const fairOS = getFairOSInstance();
+            try {
+                await importDefaultRegistry(dispatch, fairOS, password);
+            } catch (e) {
 
+            }
+
+            await openAll(password);
         }
-        // if (isImported) {
-        await openAll(password);
-        const index = await getMapsIndex(password);
+
+        const index = await getMapsIndex(password, isPublic);
+        console.log(999);
         saveOsmIndex(index);
         setWindowIndex(getOsmIndex());
-        // }
 
         dispatch(setIndexed(true));
         dispatch(setIndexStatus('ready'));
@@ -186,6 +191,8 @@ export const tryLogin = createAsyncThunk(
         const password = localStorage.getItem('osm_password');
         // let activeMap = localStorage.getItem('osm_active');
         if (!username || !password) {
+            dispatch(updateIndexes({password: '', isPublic: true}));
+
             return false;
         }
 
@@ -262,6 +269,7 @@ export const userSlice = createSlice({
             })
 
             .addCase(updateIndexes.rejected, (state, action) => {
+                console.log(action);
                 state.indexStatus = 'rejected';
             })
 

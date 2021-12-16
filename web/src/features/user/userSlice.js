@@ -42,13 +42,32 @@ async function importDefaultRegistry(dispatch, fairOS, password) {
         return false;
     }
 
-    await fairOS.podReceive(reference);
-    await fairOS.podOpen(podName, password);
-    await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
+    try {
+        await fairOS.podReceive(reference);
+    } catch (e) {
+
+    }
+
+    try {
+        await fairOS.podOpen(podName, password);
+    } catch (e) {
+
+    }
+
+    try {
+        await fairOS.kvOpen(podName, REGISTRY_KV_NAME);
+    } catch (e) {
+
+    }
+
     let dataFromRegistry = (await fairOS.kvEntryGet(registryInfo.pod_name, REGISTRY_KV_NAME, REGISTRY_KV_KEY_NAME)).data;
     dataFromRegistry = getKvValue(dataFromRegistry);
     for (let map of dataFromRegistry) {
-        await fairOS.podReceive(map.reference);
+        try {
+            await fairOS.podReceive(map.reference);
+        } catch (e) {
+
+        }
     }
 
     dispatch(setRegistry({

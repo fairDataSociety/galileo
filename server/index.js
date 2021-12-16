@@ -15,7 +15,7 @@ const mapPath = process.env.MAP_PATH;
 // POD/TABLE/Z/X/Y
 // https://fairos.fairdatasociety.org/v1/kv/entry/get?pod_name=map_sw_pod1&table_name=map&key=2_2_1
 
-const allowList = ['http://localhost:3000', 'https://app.galileo.fairdatasociety.org/'];
+const allowList = ['http://localhost:3000', 'https://app.galileo.fairdatasociety.org'];
 const corsOptionsDelegate = function (req, callback) {
     let corsOptions;
     if (allowList.indexOf(req.header('Origin')) !== -1) {

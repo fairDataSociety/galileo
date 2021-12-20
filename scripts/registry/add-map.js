@@ -50,6 +50,7 @@ async function run() {
     console.log(login);
     const podOpen = await fairOS.podOpen(pod, password);
     console.log(podOpen);
+    // todo why new?
     const kv = await fairOS.kvNew(pod, kvName);
     console.log(kv);
     const open = await fairOS.kvOpen(pod, kvName);
@@ -76,6 +77,4 @@ async function run() {
 
 }
 
-run().then(_ => {
-
-});
+run().then();

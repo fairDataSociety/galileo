@@ -1,19 +1,18 @@
-const fs = require('fs');
-// todo migrate to fairos-sj lib
-const FairOS = require('../FairOSNode');
+import fs from "fs";
+import FairOS from "@fairdatasociety/fairos-js";
 
-const fairOS = new FairOS();
+const fairOS = new FairOS('https://fairos.fairdatasociety.org/v1/');
 const configPath = './.config.json';
 if (!fs.existsSync(configPath)) {
     console.log('Config file not found. Create it and start again');
-    return;
+    process.exit();
 }
 
 const config = JSON.parse(fs.readFileSync(configPath));
 const {username, password} = config;
 if (!username || !password) {
     console.log('Can\'t find username and password in config file');
-    return;
+    process.exit();
 }
 
 function uuid() {
@@ -24,21 +23,20 @@ function uuid() {
 }
 
 async function run() {
-    const result = await fairOS.login(username, password);
+    const result = (await fairOS.userLogin(username, password)).data;
     console.log(result);
     const id = uuid();
     const podName = `map-registry-${id}`;
-    const created = await fairOS.podNew(podName, password);
+    const created = (await fairOS.podNew(podName, password)).data;
     console.log(created);
-    const ls = await fairOS.podLs();
+    const ls = (await fairOS.podLs()).data;
     console.log(ls);
     config.pod = podName;
-    const share = await fairOS.podShare(podName, password);
+    const share = (await fairOS.podShare(podName, password)).data;
     console.log(share);
     console.log(`Pod "${podName}" created and added to config. Your sharing reference: ${share.pod_sharing_reference}`);
     config.share_reference = share.pod_sharing_reference;
     fs.writeFileSync(configPath, JSON.stringify(config, null, '\t'));
-
 }
 
 run().then();

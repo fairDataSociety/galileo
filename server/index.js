@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 app.options('*', cors())
-// app.use(cors());
+app.use(cors());
 app.use(express.json());
 
 const mapPath = process.env.MAP_PATH;

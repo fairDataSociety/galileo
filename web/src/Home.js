@@ -31,7 +31,7 @@ export default function Home({mainMap}) {
                aria-expanded="false" aria-controls="multiCollapseExample1">
                 {countriesUploaded}
             </a>
-        </strong> countries from {maxCountries} 🌎
+        </strong> countries of {maxCountries} 🌎
         </h2>
 
         <div className="d-flex justify-content-center">

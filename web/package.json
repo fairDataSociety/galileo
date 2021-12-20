@@ -30,7 +30,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "copy-env-config": "cp public/example.env.js build/env.js",
-    "fill-env-config": "sed -i \"s+REACT_APP_FAIROSHOST: '',+REACT_APP_FAIROSHOST: 'https://fairos.fairdatasociety.org/v1/',+g\" build/env.js && sed -i \"s+REACT_APP_DEFAULT_REGISTRY_REFERENCE: ''+REACT_APP_DEFAULT_REGISTRY_REFERENCE: 'f1dd430e2d645f38d4db128d418b60c9bd2352cbce493fce8b077e1a5fb9eac0389c61a9e427167b1d4c108a7aef6d83107d1f20f48c8b7c13bfdc6f638e0142'+g\" build/env.js",
+    "fill-env-config": "sed -i \"s+REACT_APP_FAIROSHOST: '',+REACT_APP_FAIROSHOST: 'https://fairos-mainnet.fairdatasociety.org/v1/',+g\" build/env.js && sed -i \"s+REACT_APP_DEFAULT_REGISTRY_REFERENCE: ''+REACT_APP_DEFAULT_REGISTRY_REFERENCE: '809be603371a60a3026e21e13dacc9704fb52b25580afec6c8da722829458ca1'+g\" build/env.js",
     "deploy": "yarn copy-env-config && yarn fill-env-config && rm -r /home/ubuntu/www/app.galileo.fairdatasociety.org && mv ./build /home/ubuntu/www/app.galileo.fairdatasociety.org"
   },
   "eslintConfig": {

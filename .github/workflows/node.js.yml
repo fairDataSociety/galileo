@@ -24,12 +24,12 @@ jobs:
     - uses: actions/checkout@v2
     - run: cp ./public/example.scene.yaml ./public/scene.yaml &&  cp ./public/public-example.scene.yaml ./public/public-scene.yaml
     - run: ls -l
-    - run: sed -i 's+fair_url+https://fairos.fairdatasociety.org/v1/kv/entry/get?pod_name={fair_pod}\&table_name={fair_kv}\&key={z}_{x}_{y}+g' ./public/scene.yaml
+    - run: sed -i 's+fair_url+https://fairos-mainnet.fairdatasociety.org/v1/kv/entry/get?pod_name={fair_pod}\&table_name={fair_kv}\&key={z}_{x}_{y}+g' ./public/scene.yaml
     - name: Create .env file
       run: |
           touch .env
-          echo REACT_APP_FAIROSHOST=https://fairos.fairdatasociety.org/v1/ >> .env
-          echo REACT_APP_DEFAULT_REGISTRY_REFERENCE=17dede7098cbd03b20d7d3e7091dc28fbcc0a7b264537312d80cdc714c1b727278a0056af2e3372260f501b38ab9f5f291fdda95c6fc01b4c878e234873b6660 >> .env
+          echo REACT_APP_FAIROSHOST=https://fairos-mainnet.fairdatasociety.org/v1/ >> .env
+          echo REACT_APP_DEFAULT_REGISTRY_REFERENCE=809be603371a60a3026e21e13dacc9704fb52b25580afec6c8da722829458ca1 >> .env
           cat .env
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2

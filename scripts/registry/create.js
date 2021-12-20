@@ -1,7 +1,9 @@
 import fs from "fs";
 import FairOS from "@fairdatasociety/fairos-js";
 
-const fairOS = new FairOS('https://fairos.fairdatasociety.org/v1/');
+// todo move url to the config
+// const fairOS = new FairOS('https://fairos.fairdatasociety.org/v1/');
+const fairOS = new FairOS('https://fairos-mainnet.fairdatasociety.org/v1/');
 const configPath = './.config.json';
 if (!fs.existsSync(configPath)) {
     console.log('Config file not found. Create it and start again');
@@ -34,7 +36,8 @@ async function run() {
     config.pod = podName;
     const share = (await fairOS.podShare(podName, password)).data;
     console.log(share);
-    console.log(`Pod "${podName}" created and added to config. Your sharing reference: ${share.pod_sharing_reference}`);
+    console.log(`Pod "${podName}" created and added to config. Your sharing reference:`);
+    console.log(share.pod_sharing_reference);
     config.share_reference = share.pod_sharing_reference;
     fs.writeFileSync(configPath, JSON.stringify(config, null, '\t'));
 }

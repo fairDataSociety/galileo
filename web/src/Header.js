@@ -38,13 +38,12 @@ export default function Header({onLogout}) {
                             <Link to="/login">Login</Link>
                         </li>}
 
-                        {!user.isLoggedIn &&
-                        <li className={path === '/registration' ? 'menu-active' : ''}>
-                            <Link to="/registration">Registration</Link>
-                        </li>}
+                        {/*{!user.isLoggedIn &&*/}
+                        {/*<li className={path === '/registration' ? 'menu-active' : ''}>*/}
+                        {/*    <Link to="/registration">Registration</Link>*/}
+                        {/*</li>}*/}
 
-                        {
-                            // user.isLoggedIn &&
+                        {user.isLoggedIn &&
                         <li className={path === '/map' ? 'menu-active' : ''}>
                             <Link to="/map">Map</Link>
                         </li>}

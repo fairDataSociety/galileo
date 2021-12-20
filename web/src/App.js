@@ -256,7 +256,7 @@ export default function App() {
                     </Route>
 
                     <Route path="/map">
-                        {user.indexStatus === 'ready' && (user.isLoggedIn ? displayPrivateMap : displayPublicMap)}
+                        {user.indexStatus === 'ready' && (user.isLoggedIn ? displayPrivateMap : <p>Please, log in</p>)}
                         {user.indexStatus === 'rejected' &&
                             <p>Maps not found. <Link to="/catalog">Add</Link> some maps to your account.</p>}
                         {user.indexStatus === 'loading' && <p>Loading maps info...</p>}
@@ -283,7 +283,7 @@ export default function App() {
                     </Route>
 
                     <Route path="/">
-                        <Home/>
+                        <Home mainMap={displayPublicMap}/>
                     </Route>
                 </Switch>
             </div>

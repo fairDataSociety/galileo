@@ -6,17 +6,21 @@ The Registry is a directory of maps that is managed by a specific person or orga
 stored in this directory. To pass the registry to the end user, you need to send him a reference hash. The user can use
 the catalogs in the Registries tab.
 
-### How to create a registry?
+### How to create maps registry?
 
-`cd scripts/registry`
+`cd scripts`
 
-`yarn`
+`npm i` or `yarn`
 
-`cp example.config.json .config.json`, define FairOS username and password
+`cd registry`
 
-`node create.js`
+`cp example.config.json .config.json` - fill `.config.json` with existent FairOS username and password
 
-Then add map by passing pass map title, pod, kv (inside pod), coordinates and reference
+`node create.js` - this script will create empty registry and return sharing reference for your registry. Pod name and
+sharing referene will be stored in `.config.json`
+
+Using section **How to create and share your own map?** upload some maps and store their sharing references. Then add
+map by passing pass map title, pod, kv (inside pod), coordinates and reference
 
 `node add-map.js "My map title" YOUR_POD_NAME KV_NAME "53.0111,30.111" POD_REFERENCE`
 

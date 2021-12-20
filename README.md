@@ -1,4 +1,4 @@
-### Run Galileo from scratch (manual & Docker)
+### Run Galileo from scratch (manual & Docker), "How to create maps registry?"
 
 https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation.md
 
@@ -30,6 +30,7 @@ Install nodejs https://github.com/nodesource/distributions/blob/master/README.md
    proceed. Stock up on time. Uploading ~ 700 megabytes will take about 7 hours.
    ![Adding keys animation](./content/adding_keys.gif)
 8) Wait while script will upload all data and return Map reference. Share you map reference with community.
+
 
 ### Other
 

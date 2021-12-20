@@ -18,7 +18,7 @@ https://github.com/fairDataSociety/galileo/blob/master/instructions/Installation
        or `https://fairos-mainnet.fairdatasociety.org/v1/` for out FairOS mainnet instance.
     2) `FAIROS_USERNAME` - FairOS username. If users doesn't exist - it will be created
     3) `FAIROS_PASSWORD` - FairOS password for user
-    4) `FAIROS_POD` - pod name. Exists or not
+    4) `FAIROS_POD` - pod name. Exists or not. If you want to share the map, then create as uniq name as possible.
     5) `FAIROS_MAP_KV` - key-value name where will be stored map data
     6) `MAP_PATH` - full path to folder with tile files which downloaded above
 

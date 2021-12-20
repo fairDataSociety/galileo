@@ -230,6 +230,14 @@ async function runCsvInsert() {
         }
     }
 
+    try {
+        const sharedInfo = (await fairos.podShare(pod, password));
+        console.log('Map reference');
+        console.log(sharedInfo.data.pod_sharing_reference);
+    } catch (e) {
+        logError(e, 'map reference');
+    }
+
     log('Done!')
 }
 

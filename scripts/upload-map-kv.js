@@ -15,19 +15,19 @@ const password = process.env.FAIROS_PASSWORD;
 const pod = process.env.FAIROS_POD;
 const mapKv = process.env.FAIROS_MAP_KV;
 const mapPath = process.env.MAP_PATH;
-const command = process.argv[2];
-const commandParam = process.argv[3];
+const command = process.argv[2] ?? '';
+const commandParam = process.argv[3] ?? '';
 
-const NOT_UPLOADED_IDS_PATH = './not_uploaded_ids.txt';
-let retryUpload = [];
-if (fs.existsSync(NOT_UPLOADED_IDS_PATH)) {
-    if (!command) {
-        console.log('Not uploaded ids list found but command not specified.\r\nPass "retry" or "skip". \r\n"retry" will upload not uploaded ids\r\n"skip" will skip not uploaded ids');
-        process.exit();
-    } else if (command === 'retry') {
-        retryUpload = JSON.parse(fs.readFileSync(NOT_UPLOADED_IDS_PATH, {encoding: 'utf8', flag: 'r'}));
-    }
-}
+// const NOT_UPLOADED_IDS_PATH = './not_uploaded_ids.txt';
+// let retryUpload = [];
+// if (fs.existsSync(NOT_UPLOADED_IDS_PATH)) {
+//     if (!command) {
+//         console.log('Not uploaded ids list found but command not specified.\r\nPass "retry" or "skip". \r\n"retry" will upload not uploaded ids\r\n"skip" will skip not uploaded ids');
+//         process.exit();
+//     } else if (command === 'retry') {
+//         retryUpload = JSON.parse(fs.readFileSync(NOT_UPLOADED_IDS_PATH, {encoding: 'utf8', flag: 'r'}));
+//     }
+// }
 
 if (!(username && password && pod && mapKv && mapPath)) {
     console.log('Incorrect input data. Create .env file and fill all info');
@@ -146,10 +146,9 @@ async function runKvPut() {
     }
 
     for (const [index, file] of mapIndex.entries()) {
-        // todo implement starting uploading process from specific position
-        // if (index < 136) {
-        //     continue;
-        // }
+        if (command === 'retry' && !isNaN(commandParam) && index + 1 < commandParam) {
+            continue;
+        }
 
         // todo relogin not every 20 iterations. just check error answer 'user not logged in'
         if (index % 20 === 0) {
@@ -195,6 +194,14 @@ async function runKvPut() {
         log(data);
     } catch (e) {
         logError(e);
+    }
+
+    try {
+        const sharedInfo = (await fairos.podShare(pod, password));
+        console.log('Map reference');
+        console.log(sharedInfo.data.pod_sharing_reference);
+    } catch (e) {
+        logError(e, 'map reference');
     }
 
     log('Done!')

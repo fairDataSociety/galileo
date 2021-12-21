@@ -20,6 +20,7 @@ export default function Catalog() {
     const [mapTitle, setMapTitle] = useState('');
     const [mapCoordinates, setMapCoordinates] = useState('46.947978, 7.440386');
     const [currentItem, setCurrentItem] = useState({});
+    const [processMap, setProcessMap] = useState({});
 
     const catalog = useSelector(selectCatalog);
     const dispatch = useDispatch();
@@ -114,20 +115,20 @@ export default function Catalog() {
         </Modal>
 
         {catalog.activeItem &&
-        <div className="alert alert-success" role="alert">
-            Active map: "{catalog.activeItem.title}". <Link to="/map">Go to map to view</Link>
-        </div>}
+            <div className="alert alert-success" role="alert">
+                Active map: "{catalog.activeItem.title}". <Link to="/map">Go to map to view</Link>
+            </div>}
 
         {(catalog.status === 'error' && catalog.statusText) &&
-        <div className="alert alert-danger" role="alert">
-            {catalog.statusText}
-        </div>}
+            <div className="alert alert-danger" role="alert">
+                {catalog.statusText}
+            </div>}
 
         <h3>Maps catalog</h3>
         <p>In maps catalog page you can choose which countries should be displayed on the map.</p>
 
         {!user.isLoggedIn &&
-        <p>Please <Link to="/login">login</Link> or <Link to="/registration">register</Link> to use this page.</p>}
+            <p>Please <Link to="/login">login</Link> or <Link to="/registration">register</Link> to use this page.</p>}
 
         {user.isLoggedIn && <div className="mb-3">
             <button onClick={_ => setShowUpload(true)} className="btn btn-outline-primary">Upload map</button>
@@ -145,7 +146,18 @@ export default function Catalog() {
             <tbody>
 
             {catalog.list.map(item => <tr key={item.title}>
-                <td>{item.title}</td>
+                <td>
+                    {item.title}
+                    {(user.isLoggedIn && item.isCustom) &&
+                        <button className="btn btn-link btn-sm ml-1"
+                                onClick={_ => {
+                                    if (window.confirm('Really delete?')) {
+                                        dispatch(deleteLocal(item.id));
+                                    }
+                                }}>
+                            Delete
+                        </button>}
+                </td>
                 <td>
                     {/*{user.isLoggedIn &&*/}
                     {/*<button className="btn btn-success btn-sm"*/}
@@ -161,29 +173,22 @@ export default function Catalog() {
                     {/*    &nbsp;Switch*/}
                     {/*</button>}*/}
                     {user.isLoggedIn &&
-                    <div className="custom-control custom-checkbox" onClick={_ => {
-                        console.log('clicked', catalog.status);
-                        dispatch(addRemoveMap(item))
-                    }
-                    }>
-                        <input type="checkbox" className="custom-control-input"
-                               checked={item.checked}
-                               onChange={_ => {
-                               }} disabled={catalog.status === 'adding'}/>
-                        <label className="custom-control-label">
-                            Display on the map
-                        </label>
-                    </div>}
-
-                    {(user.isLoggedIn && item.isCustom) &&
-                    <button className="btn btn-danger btn-sm ml-1"
-                            onClick={_ => {
-                                if (window.confirm('Really delete?')) {
-                                    dispatch(deleteLocal(item.id));
-                                }
-                            }}>
-                        Delete
-                    </button>}
+                        <div className="custom-control custom-checkbox" onClick={_ => {
+                            console.log('clicked', catalog.status);
+                            setProcessMap(item);
+                            dispatch(addRemoveMap(item));
+                        }
+                        }>
+                            <input type="checkbox" className="custom-control-input"
+                                   checked={item.checked}
+                                   onChange={_ => {
+                                   }} disabled={catalog.status === 'adding'}/>
+                            <label className="custom-control-label">
+                                {catalog.status === 'adding' && (processMap.title === item.title ?
+                                    <span className="spinner-border spinner-border-sm" role="status"
+                                          aria-hidden="true"/> : '')}&nbsp;Display on the map
+                            </label>
+                        </div>}
 
                     {/*{!user.isLoggedIn &&*/}
                     {/*<button className="btn btn-success btn-sm"*/}
@@ -196,16 +201,20 @@ export default function Catalog() {
                     {/*</button>}*/}
 
                     {!user.isLoggedIn &&
-                    <p>...</p>}
+                        <p>...</p>}
                 </td>
             </tr>)}
 
-            {catalog.status !== 'loading' && catalog.list.length === 0 && <tr key={0}>
+            {catalog.status !== 'loading' && user.registry?.reference && catalog.list.length === 0 && <tr key={0}>
                 <td>No maps found</td>
             </tr>}
 
-            {catalog.status === 'loading' && <tr key={0}>
-                <td>Loading...</td>
+            {(!user.registry?.reference) && <tr key={0}>
+                <td>Loading registry info...</td>
+            </tr>}
+
+            {(catalog.status === 'loading' && catalog.list.length === 0) && <tr key={0}>
+                <td>Loading list of maps...</td>
             </tr>}
 
             </tbody>

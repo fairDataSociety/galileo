@@ -99,22 +99,35 @@ export async function getPodIndex(pod, password) {
             await fairos.kvOpen(pod, kv.table_name);
             try {
                 let mapIndex = (await fairos.kvEntryGet(pod, kv.table_name, 'map_index')).data;
-                if (mapIndex.code !== 500 && mapIndex.values) {
-                    mapIndex = atob(mapIndex.values)
+                if (!mapIndex.values) {
+                    continue;
+                }
 
-                    if (mapIndex.indexOf('map_index,') === -1) {
-                        continue;
-                    }
-
+                mapIndex = atob(mapIndex.values);
+                // todo add some info to map_index to identify it. If I insert data with kv, but not via csv, then I
+                // can't identify index. Just allow everything at this time
+                // console.log('mapIndex',mapIndex);
+                if (mapIndex.indexOf('map_index,') === -1) {
+                    // continue;
+                    // clear json if it was uploaded via csv
+                } else {
                     mapIndex = prepareJson(mapIndex);
+                }
 
+                try {
+                    // console.log('before parse..');
+                    // console.log(mapIndex);
                     mapIndex = JSON.parse(mapIndex);
+                    // console.log('parsed index', mapIndex)
                     result = {
                         pod,
                         kv: kv.table_name,
                         index: mapIndex
                     };
+                } catch (e) {
+                    console.log(e);
                 }
+                break;
             } catch (e) {
 
             }

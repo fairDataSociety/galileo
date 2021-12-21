@@ -255,12 +255,14 @@ export default function App() {
                         <Login/>
                     </Route>
 
-                    <Route path="/map">
-                        {user.indexStatus === 'ready' && (user.isLoggedIn ? displayPrivateMap : <p>Please, log in</p>)}
-                        {user.indexStatus === 'rejected' &&
-                            <p>Maps not found. <Link to="/catalog">Add</Link> some maps to your account.</p>}
-                        {user.indexStatus === 'loading' && <p>Loading maps info...</p>}
-                    </Route>
+                    {/*<Route path="/map">*/}
+                    {/*    {user.indexStatus === 'ready' && (user.isLoggedIn ? displayPrivateMap : <p>Please, log in</p>)}*/}
+
+                    {/*    {user.indexStatus === 'rejected' &&*/}
+                    {/*        <p>Maps not found. <Link to="/catalog">Add</Link> some maps to your account.</p>}*/}
+
+                    {/*    {user.indexStatus === 'loading' && <p>Loading maps info...</p>}*/}
+                    {/*</Route>*/}
 
                     <Route path="/about">
                         <About/>
@@ -283,7 +285,7 @@ export default function App() {
                     </Route>
 
                     <Route path="/">
-                        <Home mainMap={displayPublicMap}/>
+                        <Home publicMap={displayPublicMap} privateMap={displayPrivateMap}/>
                     </Route>
                 </Switch>
             </div>

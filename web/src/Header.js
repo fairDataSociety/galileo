@@ -43,10 +43,10 @@ export default function Header({onLogout}) {
                         {/*    <Link to="/registration">Registration</Link>*/}
                         {/*</li>}*/}
 
-                        {user.isLoggedIn &&
-                        <li className={path === '/map' ? 'menu-active' : ''}>
-                            <Link to="/map">Map</Link>
-                        </li>}
+                        {/*{user.isLoggedIn &&*/}
+                        {/*<li className={path === '/map' ? 'menu-active' : ''}>*/}
+                        {/*    <Link to="/map">Map</Link>*/}
+                        {/*</li>}*/}
 
                         {user.isLoggedIn && <li className=""><a href="#" onClick={e => {
                             e.preventDefault();

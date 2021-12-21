@@ -9,6 +9,7 @@ import {
 } from "../../service/LocalData";
 import {getRandomInt} from "../../service/Utils";
 import {getFairOSInstance} from "../../service/SharedData";
+import {getPodIndex} from "../../service/FairOSUtility";
 
 const initialState = {
     status: 'idle',
@@ -53,7 +54,7 @@ export const addRemoveMap = createAsyncThunk(
             // await api.podOpen(pod, user.password);
             // dispatch(setStatus('kv_open'));
             // await api.kvOpen(kv);
-            const podIndex = await api.getPodIndex(pod, user.password);
+            const podIndex = await getPodIndex(pod, user.password);
             if (podIndex) {
                 addPodToIndex(podIndex);
                 setWindowIndex(getOsmIndex());

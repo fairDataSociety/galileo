@@ -6,7 +6,7 @@ import 'jquery'
 import 'popper.js'
 import 'bootstrap/dist/js/bootstrap.min'
 
-export default function Home({mainMap}) {
+export default function Home({publicMap, privateMap}) {
     const user = useSelector(selectUser);
 
     const countriesUploaded = 4;
@@ -15,9 +15,18 @@ export default function Home({mainMap}) {
             title: '🇧🇪 Belgium',
             description: 'Belgium, officially the Kingdom of Belgium, is a country in Western Europe'
         },
-        {title: '🇨🇿 Czechia', description: 'The Czech Republic, also known by its short-form name Czechia and formerly known as Bohemia, is a landlocked country in Central Europe'},
-        {title: '🇸🇮 Slovenia', description: 'Slovenia is situated in Central and Southeast Europe touching the Alps and bordering the Mediterranean Sea'},
-        {title: '🇨🇭 Switzerland', description: 'Switzerland, officially the Swiss Confederation, is a landlocked country at the confluence of Western, Central and Southern Europe'},
+        {
+            title: '🇨🇿 Czechia',
+            description: 'The Czech Republic, also known by its short-form name Czechia and formerly known as Bohemia, is a landlocked country in Central Europe'
+        },
+        {
+            title: '🇸🇮 Slovenia',
+            description: 'Slovenia is situated in Central and Southeast Europe touching the Alps and bordering the Mediterranean Sea'
+        },
+        {
+            title: '🇨🇭 Switzerland',
+            description: 'Switzerland, officially the Swiss Confederation, is a landlocked country at the confluence of Western, Central and Southern Europe'
+        },
     ];
     // There are 195 countries in the world today
     const maxCountries = 195;
@@ -74,9 +83,11 @@ export default function Home({mainMap}) {
                 {/*    <Link to="/map" className="btn-get-started scrollto">Get Started</Link>*/}
                 {/*</div>*/}
                 {user.indexStatus === 'ready' && <>
-                    {mainMap}
+                    {user.isLoggedIn ? privateMap : publicMap}
                 </>}
-                {user.indexStatus === 'loading' && <p>Loading maps info...</p>}
+                {user.indexStatus === 'loading' && (user.isLoggedIn ?
+                    <p>Loading maps info from your account...</p> :
+                    <p>Loading maps info...</p>)}
             </div>
 
             {/*<div id="intro-carousel" className="owl-carousel">*/}

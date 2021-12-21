@@ -32,6 +32,8 @@ export default function Home({publicMap, privateMap}) {
     const maxCountries = 195;
     const uploadedPercent = maxCountries / 100 * countriesUploaded;
 
+    const displayMap = user.isLoggedIn ? privateMap : publicMap;
+
     return <div className="App">
         <h2 className="text-center mt-3">
             Uploaded <strong>
@@ -82,8 +84,9 @@ export default function Home({publicMap, privateMap}) {
                 {/*<div>*/}
                 {/*    <Link to="/map" className="btn-get-started scrollto">Get Started</Link>*/}
                 {/*</div>*/}
+
                 {user.indexStatus === 'ready' && <>
-                    {user.isLoggedIn ? privateMap : publicMap}
+                    {displayMap}
                 </>}
                 {user.indexStatus === 'loading' && (
                     <div>

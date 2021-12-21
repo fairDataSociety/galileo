@@ -92,6 +92,7 @@ export const login = createAsyncThunk(
         if (isLoggedIn) {
             localStorage.setItem('osm_username', username);
             localStorage.setItem('osm_password', password);
+            dispatch(setUser({username, password, isLoggedIn}));
             // const index = await fairOS.getMapsIndex(password);
             dispatch(updateIndexes({password}));
             // saveOsmIndex(index);
@@ -112,7 +113,15 @@ export const updateIndexes = createAsyncThunk(
         const {password, isPublic} = data;
         dispatch(setIndexStatus('loading'));
         dispatch(setIndexed(false));
-        if (!isPublic) {
+
+        if (!isPublic && !password) {
+            console.error('isPublic, but no password');
+        }
+
+        let index = {};
+        if (isPublic) {
+            index = await getMapsIndex('', isPublic);
+        } else if (!isPublic && password) {
             dispatch(downloadMarkers());
             const fairOS = getFairOSInstance();
             try {
@@ -122,9 +131,9 @@ export const updateIndexes = createAsyncThunk(
             }
 
             await openAll(password);
+            index = await getMapsIndex(password, isPublic);
         }
 
-        const index = await getMapsIndex(password, isPublic);
         saveOsmIndex(index);
         setWindowIndex(getOsmIndex());
 

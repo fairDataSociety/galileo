@@ -149,10 +149,30 @@ export const saveMarkers = createAsyncThunk(
     async ({markers}, {dispatch, getState}) => {
         const user = getState().user;
         const fairOS = getFairOSInstance();
-        await fairOS.podNew(MAPS_DATA_POD, user.password);
-        await fairOS.podOpen(MAPS_DATA_POD, user.password);
-        await fairOS.kvNew(MAPS_DATA_POD, MAPS_DATA_KV);
-        await fairOS.kvOpen(MAPS_DATA_POD, MAPS_DATA_KV);
+        try {
+            await fairOS.podNew(MAPS_DATA_POD, user.password);
+        } catch (e) {
+
+        }
+
+        try {
+            await fairOS.podOpen(MAPS_DATA_POD, user.password);
+        } catch (e) {
+
+        }
+
+        try {
+            await fairOS.kvNew(MAPS_DATA_POD, MAPS_DATA_KV);
+        } catch (e) {
+
+        }
+
+        try {
+            await fairOS.kvOpen(MAPS_DATA_POD, MAPS_DATA_KV);
+        } catch (e) {
+
+        }
+
         await fairOS.kvEntryPut(MAPS_DATA_POD, MAPS_DATA_KV, MAPS_DATA_KV_TABLE_POINTS, JSON.stringify(markers));
         // await fairOS.fileDelete(MAPS_DATA_POD, '/info.json');
         // await fairOS.fileUpload(MAPS_DATA_POD, 'info.json', JSON.stringify(markers));

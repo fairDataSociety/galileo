@@ -85,9 +85,14 @@ export default function Home({publicMap, privateMap}) {
                 {user.indexStatus === 'ready' && <>
                     {user.isLoggedIn ? privateMap : publicMap}
                 </>}
-                {user.indexStatus === 'loading' && (user.isLoggedIn ?
-                    <p>Loading maps info from your account...</p> :
-                    <p>Loading maps info...</p>)}
+                {user.indexStatus === 'loading' && (
+                    <div>
+                            <span className="spinner-border spinner-border-xl" role="status"
+                                  aria-hidden="true"/>
+                        {user.isLoggedIn ?
+                            <p>Loading maps info from your account...</p> : <p>Loading maps info...</p>}
+                    </div>
+                )}
             </div>
 
             {/*<div id="intro-carousel" className="owl-carousel">*/}

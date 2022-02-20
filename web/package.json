@@ -30,7 +30,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "copy-env-config": "cp public/example.env.js build/env.js",
-    "fill-env-config": "sed -i \"s+REACT_APP_FAIROSHOST: '',+REACT_APP_FAIROSHOST: 'https://fairos-mainnet.fairdatasociety.org/v1/',+g\" build/env.js && sed -i \"s+REACT_APP_DEFAULT_REGISTRY_REFERENCE: ''+REACT_APP_DEFAULT_REGISTRY_REFERENCE: '809be603371a60a3026e21e13dacc9704fb52b25580afec6c8da722829458ca1'+g\" build/env.js",
+    "fill-env-config": "sed -i \"s+REACT_APP_FAIROSHOST: '',+REACT_APP_FAIROSHOST: 'https://fairos.fairdatasociety.org/v1/',+g\" build/env.js && sed -i \"s+REACT_APP_DEFAULT_REGISTRY_REFERENCE: ''+REACT_APP_DEFAULT_REGISTRY_REFERENCE: '809be603371a60a3026e21e13dacc9704fb52b25580afec6c8da722829458ca1'+g\" build/env.js",
     "deploy": "yarn copy-env-config && yarn fill-env-config && rm -r /home/ubuntu/www/app.galileo.fairdatasociety.org && mv ./build /home/ubuntu/www/app.galileo.fairdatasociety.org"
   },
   "eslintConfig": {

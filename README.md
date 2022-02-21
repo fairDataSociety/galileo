@@ -35,7 +35,7 @@ The process to create and share a map:
 
 4) Go to `scripts` folder, run `cd scripts`, run `npm i` or `yarn`.
 
-5) Run upload script `node upload-map-kv.js`.
+5) Run upload script `node upload-map-kv.js`. **Important notice**: each map should be uploaded into a separate pod. This is necessary for the convenient compilation of the register of maps.
 
    Note that sometimes you need to pause a process to continue later. To continue uploading you can use the command `node upload-map-kv.js retry 78`, where 78 is number of position where you want to proceed. Uploading ~ 700 megabytes might take about 7 hours.
 

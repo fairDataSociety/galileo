@@ -1,3 +1,28 @@
+# Galileo
+
+Galileo is a stack of technologies designed for uploading and displaying map data using decentralized storage. It aims to offer a secure, efficient, and flexible way to handle geographical information.
+
+## Technical Details
+
+### Storage
+Map tiles of specific countries are uploaded to Swarm using [FairOS-dfs](https://github.com/fairDataSociety/fairOS-dfs) as part of the [FDP Storage](https://github.com/fairDataSociety/fdp-storage) architecture.
+
+### Indexing
+The uploaded map tiles are indexed in such a way that they can be easily accessed and displayed either via a web interface or a user's local node.
+
+### UI
+The User Interface for displaying these maps is written using React.
+
+## Features
+
+- **Decentralized**: By using Swarm and FairOS-dfs, Galileo ensures that the data is stored in a decentralized manner.
+- **Public Sharing**: Maps can be shared publicly, allowing for collaborative use and updating.
+- **Selective Display**: Despite the global scale of the map data, users can choose to display only specific countries or cities.
+- **Trusted Providers**: Users can combine sets of tiles from trusted providers to create comprehensive maps that cover the entire world.
+
+## Why Galileo?
+
+The reason for using map data from trusted providers is to display geographical information in a manner that is mutually acceptable for both the user and the sharing party.
 
 ### How to create and share your own map?
 

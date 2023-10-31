@@ -5,7 +5,7 @@ Galileo is a stack of technologies designed for uploading and displaying map dat
 ## Technical Details
 
 ### Storage
-Map tiles of specific countries are uploaded to Swarm using [FairOS-dfs](https://github.com/fairDataSociety/fairOS-dfs) as part of the [FDP Storage](https://github.com/fairDataSociety/fdp-storage) architecture.
+Map tiles of specific countries are uploaded to Swarm using [FairOS-dfs](https://github.com/fairDataSociety/fairOS-dfs) or [FDP Storage](https://github.com/fairDataSociety/fdp-storage).
 
 ### Indexing
 The uploaded map tiles are indexed in such a way that they can be easily accessed and displayed either via a web interface or a user's local node.
